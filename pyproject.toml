@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tosmod"
+version = "0.1.0"
+description = "ToS-aware content moderation research workbench"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+dependencies = [
+    "flask>=3.0",
+    "httpx>=0.27",
+    "python-dotenv>=1.0",
+    "pyyaml>=6.0",
+    "beautifulsoup4>=4.12",
+    "lxml>=5.0",
+]
+
+[project.optional-dependencies]
+collectors = [
+    "apify-client>=1.6",
+    "praw>=7.7",
+    "instaloader>=4.10",
+]
+training = [
+    "torch>=2.0",
+    "transformers>=4.40",
+    "scikit-learn>=1.3",
+    "pandas>=2.0",
+    "emoji>=2.10",
+    "accelerate>=0.28",
+]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+tosmod = "tosmod.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["tosmod*", "thesis_scraper*", "dashboard*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

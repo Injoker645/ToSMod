@@ -1,0 +1,97 @@
+# Thesis Scraper - Configuration
+# URLs, delays, API keys, proxy flags
+
+# Per-platform rate limits (seconds between requests)
+rate_limits:
+  tiktok: 2.0
+  instagram: 20.0
+  youtube_api: 1.0
+  youtube_ytdlp: 2.0
+
+# Retry configuration
+retry:
+  max_attempts: 3
+  base_delay: 2.0
+  max_delay: 60.0
+  exponential_base: 2.0
+
+# Playwright / stealth
+playwright:
+  headless: true
+  viewport_width: 1920
+  viewport_height: 1080
+  timeout_ms: 30000
+  stealth: true
+  human_delay_min: 2.0
+  human_delay_max: 5.0
+
+# Proxies (optional; leave empty to disable)
+proxies:
+  enabled: false
+  # residential_proxy_url: "http://user:pass@proxy:port"
+  # rotate_per_request: true
+
+# API keys (set via environment or override here for local dev)
+# TikTok: separate routes for comments (choose one via tiktok.source)
+# - research_api: official Research API (needs access_token)
+# - playwright: browser + XHR/DOM (no API key)
+# - apify: Apify actor (needs APIFY_API_KEY; uses paid credit)
+tiktok:
+  source: apify  # playwright | apify | research_api
+
+tiktok_research_api:
+  enabled: false
+  base_url: "https://open.tiktokapis.com"
+  # client_key: env:TIKTOK_CLIENT_KEY
+  # client_secret: env:TIKTOK_CLIENT_SECRET
+
+# TikTok route: Apify (https://console.apify.com/actors/BDec00yAmCm1QbMEI)
+# Used when tiktok.source is "apify". Set APIFY_API_KEY in .env.
+tiktok_apify:
+  actor_id: "BDec00yAmCm1QbMEI"
+  # api_key: env:APIFY_API_KEY
+
+# YouTube: separate routes (choose one via youtube.source)
+# - api: Data API v3 (needs YOUTUBE_API_KEY)
+# - ytdlp: yt-dlp (no API key; requires yt-dlp installed)
+youtube:
+  source: api  # api | ytdlp
+
+youtube_api:
+  enabled: true
+  # api_key: env:YOUTUBE_API_KEY
+
+# Instagram Reels (and posts): Instaloader (post + comments), InstaScrape (comments via GraphQL), or Playwright (browser)
+# Reels URL: https://www.instagram.com/reel/SHORTCODE/
+# - instaloader: session_file + scripts/instagram_login_session.py
+# - instascrape: instascrape_cookie_path (authenticated GraphQL comments)
+# - playwright: browser automation; uses instascrape_cookie_path if set, else login via INSTAGRAM_USERNAME/PASSWORD in .env
+# Cookie path is shared: instascrape_cookie_path can be used by both InstaScrape and Playwright.
+# Do NOT put password in this config – use .env only.
+instagram:
+  source: playwright  # instaloader | instascrape | playwright
+  session_file: "data/instagram_session"
+  # session_username: null  # optional; else read from data/instagram_username.txt
+  cookies_path: null
+  # When source is instascrape or playwright, path to InstaScrape-format cookie.json (from scripts/instagram_login_session.py)
+  instascrape_cookie_path: "data/instagram_cookie.json"
+  # Optional overrides for Playwright comments (defaults from top-level playwright section)
+  # playwright:
+  #   headless: true
+  #   timeout_ms: 30000
+  #   human_delay_min: 2.0
+  #   human_delay_max: 5.0
+
+# Storage
+storage:
+  raw_dir: "data/raw"
+  db_path: "data/thesis_scraper.db"  # SQLite for simplicity; can switch to PostgreSQL
+  checkpoint_file: "data/checkpoint_done.txt"  # One URL per line for resume
+  # For PostgreSQL: connection_string: "postgresql://user:pass@localhost/thesis_scraper"
+
+# Anonymization
+# The salt is read from the ANONYMIZATION_SALT env var (preferred).
+# The value below is only used as a last-resort fallback and MUST be changed
+# before the final dataset is built. Set ANONYMIZATION_SALT in .env.
+anonymization:
+  salt: "thesis_salt_change_in_production"

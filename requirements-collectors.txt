@@ -1,0 +1,6 @@
+-r requirements.txt
+apify-client>=1.6
+playwright>=1.40
+instaloader>=4.10
+praw>=7.7
+datasets>=2.18

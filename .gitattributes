@@ -1,0 +1,14 @@
+# Normalize line endings to LF on commit, check out as-is on Windows
+* text=auto eol=lf
+
+# Notebooks and binary files
+*.ipynb text eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.svg text eol=lf
+*.db binary
+*.safetensors binary
+*.bin binary
+*.pt binary

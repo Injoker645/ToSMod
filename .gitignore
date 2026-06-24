@@ -1,0 +1,46 @@
+# Env and secrets
+.env
+.env.local
+secrets.env
+*.env.local
+
+# Data and DB (user-local; demo lives under examples/)
+data/
+*.db
+
+# Model weights
+models/**/*.safetensors
+models/**/*.bin
+models/**/*.pt
+models/**/optimizer.pt
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+venv/
+.venv/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Credentials
+instagram_session
+instagram_cookie.json
+instagram_username.txt
+
+# Results with possible PII
+results/**/partial*.jsonl
+experiments/results/**/partial*.jsonl
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# LaTeX / logs
+*.log
+*.aux
+*.toc

@@ -1,0 +1,11 @@
+name: apify_tiktok_export
+format: json
+platform_default: tiktok
+field_map:
+  comment_id: cid
+  text: text
+  post_id: videoId
+  author_id: uniqueId
+  posted_at: createTime
+transforms:
+  - strip_html

@@ -1,0 +1,30 @@
+source: Meta / Instagram Community Standards (2025)
+labels:
+  SAFE:
+    brief: No policy violation; does not meet the threshold for any harm category.
+    detail: Comment does not degrade or shame individuals, express hate tiers, sexualise without consent, encourage self-injury, dehumanise, or spread imminent-harm health misinformation under Meta policy.
+  HARASS:
+    brief: Degrades or shames an individual; repeated unwanted contact or coordinated harassment.
+    detail: Prohibits targeting individuals with content intended to degrade or shame, repeated unwanted contact and coordinated harassment; lower threshold for private individuals than public figures.
+  HATE:
+    brief: Tier 1–3 hate; dehumanisation, harmful generalisations, or slurs (all coded HATE).
+    detail: Tier 1 prohibits content that dehumanises people; Tier 2 prohibits harmful generalisations; Tier 3 prohibits slurs. All three tiers treated as HATE in this schema.
+  SEXUAL:
+    brief: Non-consensual sexual content, solicitation, or sexualisation of minors.
+    detail: Prohibits non-consensual sexual content, intimate imagery shared without consent, and sexual solicitation; any sexualisation of a person under 18 is prohibited regardless of context.
+  SELFHARM:
+    brief: Promotes suicide or self-injury; glorifies eating disorders or harmful thinness.
+    detail: Prohibits content that promotes or encourages suicide or self-injury, provides methods or instructions, or glorifies eating disorders or thinness in a harmful way.
+  DEHUMANISE:
+    brief: Tier 1 hate; explicit non-human comparisons or subhuman statements.
+    detail: Defined as Tier 1 hate speech; content that dehumanises people, including explicit comparisons to non-human entities and statements that people are subhuman.
+  MISINFO:
+    brief: Health misinformation posing imminent physical harm (e.g. vaccines, false cures).
+    detail: Prohibits health misinformation that could directly contribute to the risk of imminent physical harm, including vaccine misinformation and false cancer treatment claims.
+eu:
+  HARASS: Contact risks — harmful encounters; cyberbullying named as an example. Also conduct risks — hateful behaviour when the commenter targets another user.
+  HATE: Content risks — hateful content; exposure to content that dehumanises on the basis of identity. Also contact risks — hateful encounters directed at the minor or creator.
+  SELFHARM: Content risks — harmful content; content promoting self-harm, suicide, eating disorders. Also cross-cutting health and wellbeing risks to minors.
+  SEXUAL: Contact risks — illegal encounters; online grooming, sexual coercion and extortion named explicitly. Also content risks — illegal content (CSAM).
+  DEHUMANISE: Content risks — hateful content; dehumanising content named as a risk manifestation. Also contact risks — hateful encounters when directed at the minor or creator.
+  MISINFO: Content risks — disinformation; false or misleading information posing risks to physical wellbeing. Also cross-cutting health and wellbeing risks.

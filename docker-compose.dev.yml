@@ -1,0 +1,16 @@
+services:
+  web:
+    build: .
+    ports:
+      - "5050:5050"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config:ro
+      - ./dashboard:/app/dashboard
+      - ./tosmod:/app/tosmod
+    command: ["python", "dashboard/app.py"]
+    environment:
+      - TOSMOD_DB_PATH=/app/data/tosmod.db
+      - FLASK_DEBUG=1

@@ -1,0 +1,9 @@
+# Install from repo root: pip install -e ".[dev]"
+# Or minimal: pip install -r requirements.txt && pip install pytest
+
+flask>=3.0
+httpx>=0.27
+python-dotenv>=1.0
+pyyaml>=6.0
+beautifulsoup4>=4.12
+lxml>=5.0

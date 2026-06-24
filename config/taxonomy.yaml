@@ -1,0 +1,41 @@
+# ToSMod harm taxonomy — edit here to customize labels for your research.
+labels:
+  - id: 0
+    name: SAFE
+    harmful: false
+  - id: 1
+    name: HARASS
+    harmful: true
+    severity: [1, 2, 3]
+  - id: 2
+    name: HATE
+    harmful: true
+    severity: [1, 2, 3]
+  - id: 3
+    name: SELFHARM
+    harmful: true
+    severity: [1, 2, 3]
+  - id: 4
+    name: SEXUAL
+    harmful: true
+    severity: [1, 2, 3]
+  - id: 5
+    name: DEHUMANISE
+    harmful: true
+    severity: [1, 2, 3]
+  - id: 6
+    name: MISINFO
+    harmful: true
+    severity: [1, 2, 3]
+
+modalities:
+  - text
+  - gif
+  - image
+  - text+gif
+  - text+image
+
+severity:
+  min: 1
+  max: 3
+  safe_value: null

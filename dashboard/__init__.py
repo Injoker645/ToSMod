@@ -1,0 +1,1 @@
+"""ToSMod Flask dashboard."""

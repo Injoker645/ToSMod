@@ -1,0 +1,8 @@
+name: hf_sample
+format: csv
+platform_default: custom
+field_map:
+  comment_id: id
+  text: comment_text
+  post_id: article_id
+  label: toxicity

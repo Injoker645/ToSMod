@@ -1,0 +1,15 @@
+app:
+  host: "127.0.0.1"
+  port: 5050
+
+database:
+  path: "./data/tosmod.db"
+  env_override: TOSMOD_DB_PATH
+
+annotation:
+  manual_goal_comments_per_platform: 1500
+
+collection:
+  canonical_strata:
+    - search_term
+    - cross_platform

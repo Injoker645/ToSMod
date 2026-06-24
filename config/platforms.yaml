@@ -1,0 +1,21 @@
+platforms:
+  youtube:
+    display_name: YouTube
+    thumbnail_strategy: youtube_api
+    enabled: true
+  tiktok:
+    display_name: TikTok
+    thumbnail_strategy: tiktok_cdn
+    enabled: true
+  instagram:
+    display_name: Instagram
+    thumbnail_strategy: instagram_proxy
+    enabled: true
+  reddit:
+    display_name: Reddit
+    thumbnail_strategy: none
+    enabled: true
+  custom:
+    display_name: Custom
+    thumbnail_strategy: none
+    enabled: true

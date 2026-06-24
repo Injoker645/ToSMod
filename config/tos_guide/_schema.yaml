@@ -1,0 +1,7 @@
+# Schema for config/tos_guide/<platform>.yaml
+# Each platform file must include:
+#   source: string — policy document name/year
+#   labels.<LABEL_NAME>:
+#     brief: one-line annotator summary
+#     detail: full policy-aligned definition
+#   eu.<LABEL_NAME>: optional EU LEX 5C cross-reference (harm labels only)

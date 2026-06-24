@@ -1,0 +1,30 @@
+source: YouTube Community Guidelines (2025)
+labels:
+  SAFE:
+    brief: No policy violation; does not meet the threshold for any harm category.
+    detail: Comment is not specifically meant to maliciously attack, promote hatred, sexualise without consent, encourage self-harm, dehumanise, or spread health misinformation under YouTube policy.
+  HARASS:
+    brief: Malicious personal attack, sustained negative commentary, or coordinated abuse.
+    detail: Prohibits content specifically meant to maliciously attack an individual, sustained negative personal commentary, hurtful and negative comments, and coordinated abuse in comment sections.
+  HATE:
+    brief: Violence or hatred based on protected attributes (race, religion, gender, etc.).
+    detail: Prohibits content that promotes violence or hatred based on protected attributes including race, religion, gender, sexual orientation, disability and immigration status.
+  SEXUAL:
+    brief: Sexual harassment, unwanted sexualisation, or sexual content involving minors.
+    detail: Prohibits sexual harassment in comments, unwanted sexualisation, comments making sexual references about a specific person, and any sexual content involving minors.
+  SELFHARM:
+    brief: Promotes or glorifies self-harm, suicide, or mocks suicidal ideation.
+    detail: Prohibits content that promotes or glorifies self-harm or suicide, including instructional content; comments mocking suicidal ideation or encouraging self-harm are violations.
+  DEHUMANISE:
+    brief: Treats people as less than human; distinct severe category within hate policy.
+    detail: Prohibits content that dehumanises individuals or groups and content that treats people as less than human; named as a distinct and severe category within hate speech policy.
+  MISINFO:
+    brief: Contradicts WHO or health authority guidance; dangerous treatment advice.
+    detail: Prohibits content contradicting WHO or local health authority guidance, including vaccine misinformation, unproven remedy promotion and dangerous home-treatment advice.
+eu:
+  HARASS: Contact risks — harmful encounters; cyberbullying named as an example. Also conduct risks — hateful behaviour when the commenter targets another user.
+  HATE: Content risks — hateful content; exposure to content that dehumanises on the basis of identity. Also contact risks — hateful encounters directed at the minor or creator.
+  SELFHARM: Content risks — harmful content; content promoting self-harm, suicide, eating disorders. Also cross-cutting health and wellbeing risks to minors.
+  SEXUAL: Contact risks — illegal encounters; online grooming, sexual coercion and extortion named explicitly. Also content risks — illegal content (CSAM).
+  DEHUMANISE: Content risks — hateful content; dehumanising content named as a risk manifestation. Also contact risks — hateful encounters when directed at the minor or creator.
+  MISINFO: Content risks — disinformation; false or misleading information posing risks to physical wellbeing. Also cross-cutting health and wellbeing risks.

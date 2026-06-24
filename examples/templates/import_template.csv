@@ -1,0 +1,2 @@
+platform,post_id,comment_id,text,label,collection_stratum,search_query
+custom,post_1,c_1,Example comment text,SAFE,import,template

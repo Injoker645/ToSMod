@@ -1,0 +1,46 @@
+connectors:
+  youtube_official:
+    tier: official
+    module: youtube_api
+    platform: youtube
+    display_name: YouTube Data API v3
+    requires: [YOUTUBE_API_KEY]
+  tiktok_research:
+    tier: official
+    module: tiktok_research
+    platform: tiktok
+    display_name: TikTok Research API
+    requires: [TIKTOK_RESEARCH_CLIENT_KEY, TIKTOK_RESEARCH_CLIENT_SECRET]
+  reddit_official:
+    tier: official
+    module: reddit_api
+    platform: reddit
+    display_name: Reddit Data API (PRAW)
+    requires: [REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET]
+  apify_tiktok:
+    tier: opt_in
+    module: apify
+    platform: tiktok
+    display_name: TikTok via Apify
+    actor: BDec00yAmCm1QbMEI
+    requires: [APIFY_API_KEY]
+  apify_instagram:
+    tier: opt_in
+    module: apify
+    platform: instagram
+    display_name: Instagram via Apify
+    actor: apify/instagram-scraper
+    requires: [APIFY_API_KEY]
+  apify_youtube:
+    tier: opt_in
+    module: apify
+    platform: youtube
+    display_name: YouTube via Apify
+    actor: streamers/youtube-scraper
+    requires: [APIFY_API_KEY]
+  hf_datasets:
+    tier: official
+    module: hf_datasets
+    platform: custom
+    display_name: Hugging Face Datasets
+    requires: []

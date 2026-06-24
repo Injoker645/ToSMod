@@ -1,0 +1,37 @@
+# Thesis short-form video scraper
+# Python 3.10+
+
+# HTTP
+httpx>=0.25.0
+aiohttp>=3.9.0
+
+# HTML/JSON parsing
+beautifulsoup4>=4.12.0
+lxml>=5.0.0
+jmespath>=1.0.0
+
+# Config
+PyYAML>=6.0.0
+python-dotenv>=1.0.0
+
+# Browser automation (optional but recommended)
+playwright>=1.40.0
+# playwright-stealth optional: pip install playwright-stealth
+
+# Instagram (optional)
+instaloader>=4.10.0
+
+# YouTube (yt-dlp for fallback - install separately or via pip)
+# yt-dlp>=2024.1.0
+
+# TikTok fallback (Apify)
+apify-client>=1.6.0
+
+# Dashboard (optional)
+flask>=3.0.0
+
+# Experiments (optional; full stack in experiments/requirements.txt)
+emoji>=2.10
+statsmodels>=0.14
+bitsandbytes>=0.43
+ollama>=0.3

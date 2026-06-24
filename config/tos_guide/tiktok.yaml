@@ -1,0 +1,30 @@
+source: TikTok Community Guidelines (2025)
+labels:
+  SAFE:
+    brief: No policy violation; does not meet the threshold for any harm category.
+    detail: Comment does not attack or embarrass people, dehumanise on protected attributes, sexualise without consent, promote self-harm, or spread medical misinformation under TikTok policy.
+  HARASS:
+    brief: Attacks, threatens, embarrasses, bullies, or wishes serious harm on an individual.
+    detail: Prohibits content that attacks, threatens, or embarrasses people, including harassment, intimidation or bullying and wishing serious harm on an individual.
+  HATE:
+    brief: Dehumanises people on protected attributes; slurs and supremacist content.
+    detail: Prohibits content that dehumanises people on the basis of protected attributes including race, religion, gender, sexual orientation and disability; bans slurs and supremacist content.
+  SEXUAL:
+    brief: Sexualises or harms people without consent; solicitation or NCII in comments.
+    detail: Prohibits sexualising, degrading, or harming real people in a sexual context without their consent, including non-consensual intimate imagery and sexual solicitation in comments.
+  SELFHARM:
+    brief: Displays, promotes, or glorifies suicide, self-harm, or eating disorders.
+    detail: Prohibits content that displays, promotes, normalises or glorifies suicide or self-harm, and promotion of eating disorders including extreme calorie restriction presented as desirable.
+  DEHUMANISE:
+    brief: Most severe hate tier; compares groups to animals, insects, or diseases.
+    detail: Named explicitly as the most severe tier of hate speech; prohibits comparing groups to animals, insects or diseases and language that strips people of human attributes.
+  MISINFO:
+    brief: Medical misinformation contradicting authoritative health bodies.
+    detail: Prohibits medical misinformation contradicting authoritative health bodies, including false cure claims and content discouraging appropriate medical treatment.
+eu:
+  HARASS: Contact risks — harmful encounters; cyberbullying named as an example. Also conduct risks — hateful behaviour when the commenter targets another user.
+  HATE: Content risks — hateful content; exposure to content that dehumanises on the basis of identity. Also contact risks — hateful encounters directed at the minor or creator.
+  SELFHARM: Content risks — harmful content; content promoting self-harm, suicide, eating disorders. Also cross-cutting health and wellbeing risks to minors.
+  SEXUAL: Contact risks — illegal encounters; online grooming, sexual coercion and extortion named explicitly. Also content risks — illegal content (CSAM).
+  DEHUMANISE: Content risks — hateful content; dehumanising content named as a risk manifestation. Also contact risks — hateful encounters when directed at the minor or creator.
+  MISINFO: Content risks — disinformation; false or misleading information posing risks to physical wellbeing. Also cross-cutting health and wellbeing risks.

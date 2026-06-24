@@ -1,0 +1,14 @@
+title: ToSMod
+version: 0.1.0
+message: >-
+  If you use ToSMod in academic work, please cite the software and the associated thesis.
+authors:
+  - family-names: Islam
+    given-names: Moaaz Tameer
+repository-code: 'https://github.com/your-org/ToSMod'
+license: MIT
+keywords:
+  - content-moderation
+  - annotation
+  - harm-detection
+  - terms-of-service

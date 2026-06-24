@@ -1,0 +1,3177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ToSMod — Moderation Research Workbench</title>
+  <style>
+    :root {
+      --bg: #0d0d10;
+      --surface: #141418;
+      --card: #1c1c22;
+      --border: #2a2a34;
+      --text: #e4e4ef;
+      --muted: #6b6b80;
+      --muted2: #44445a;
+      --accent: #7c6af7;
+      --yt: #ff3b30;
+      --green: #34c759;
+      --red: #ff453a;
+      --yellow: #ffd60a;
+      --radius: 8px;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    .app-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+    .app-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin: 0; letter-spacing: 0.01em; }
+    .header-stats { display: flex; gap: 0.5rem; margin-left: auto; flex-wrap: wrap; }
+    .hstat {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.2rem 0.65rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .hstat strong { color: var(--text); }
+
+    /* ── Tab bar ── */
+    .tab-bar {
+      display: flex;
+      gap: 0;
+      padding: 0 1.25rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 0.6rem 0.9rem;
+      margin-bottom: -1px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+
+    /* ── Tab content ── */
+    .tab-content { display: none; flex: 1; overflow: hidden; }
+    .tab-content.active { display: flex; }
+
+    /* ── Search tab layout ── */
+    #tab-search { flex-direction: row; }
+
+    .search-sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      padding: 1.25rem;
+      overflow-y: auto;
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 0.3rem; }
+    .field-label { font-size: 0.72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .platform-tabs { display: flex; gap: 0.3rem; }
+    .plat-btn {
+      flex: 1;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.78rem;
+      padding: 0.4rem 0.3rem;
+      text-align: center;
+      transition: all 0.15s;
+    }
+    .plat-btn.active { background: rgba(124,106,247,0.15); border-color: var(--accent); color: var(--accent); }
+    .plat-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    input[type="text"], select, input[type="number"] {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 0.85rem;
+      padding: 0.45rem 0.65rem;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.15s;
+      font-family: inherit;
+    }
+    input[type="text"]:focus, select:focus, input[type="number"]:focus { border-color: var(--accent); }
+    select { cursor: pointer; }
+    .radio-group { display: flex; flex-direction: column; gap: 0.3rem; }
+    .radio-row { display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; cursor: pointer; }
+    .radio-row input { cursor: pointer; accent-color: var(--accent); }
+    .comments-sub { padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.3rem; }
+    .search-btn {
+      background: var(--yt);
+      border: none;
+      border-radius: var(--radius);
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 0.6rem 1rem;
+      width: 100%;
+      transition: opacity 0.15s;
+    }
+    .search-btn:hover { opacity: 0.85; }
+    .search-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .quota-note { font-size: 0.72rem; color: var(--muted); text-align: center; }
+
+    /* ── Results area ── */
+    .search-results {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .results-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .results-meta { font-size: 0.82rem; color: var(--muted); }
+    .results-actions { display: flex; gap: 0.5rem; margin-left: auto; flex-wrap: wrap; align-items: center; }
+    .btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 0.38rem 0.75rem;
+      transition: background 0.15s, border-color 0.15s;
+      font-family: inherit;
+    }
+    .btn:hover { background: var(--border); }
+    .btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      font-weight: 600;
+    }
+    .btn.primary:hover { opacity: 0.85; }
+    .btn.primary:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn.danger { color: var(--red); border-color: var(--red); }
+    .btn.danger:hover { background: rgba(255,69,58,0.12); }
+
+    /* ── Result cards grid ── */
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 0.85rem;
+    }
+    .result-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color 0.15s;
+      position: relative;
+    }
+    .result-card.selected { border-color: var(--accent); }
+    .result-card.in-db { opacity: 0.55; }
+    .result-card.in-db.selected { opacity: 1; }
+
+    .card-thumb-wrap {
+      position: relative;
+      aspect-ratio: 16/9;
+      background: var(--border);
+      overflow: hidden;
+    }
+    .card-thumb-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .card-checkbox {
+      position: absolute;
+      top: 6px; left: 7px;
+      width: 18px; height: 18px;
+      cursor: pointer;
+      accent-color: var(--accent);
+      z-index: 2;
+    }
+    .card-in-db-badge {
+      position: absolute;
+      bottom: 5px; right: 5px;
+      background: rgba(52,199,89,0.9);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      letter-spacing: 0.04em;
+    }
+    .card-status-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #fff;
+      border-radius: var(--radius);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .card-status-overlay.show { opacity: 1; pointer-events: auto; }
+    .card-status-overlay.loading { background: rgba(13,13,16,0.85); }
+    .card-status-overlay.success { background: rgba(52,199,89,0.88); }
+    .card-status-overlay.error { background: rgba(255,69,58,0.88); }
+    .card-status-overlay.skipped { background: rgba(255,214,10,0.9); color: #111; }
+    .spinner {
+      width: 22px; height: 22px;
+      border: 2.5px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .card-body { padding: 0.6rem 0.7rem 0.7rem; }
+    .card-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
+      margin-bottom: 0.25rem;
+    }
+    .card-channel { font-size: 0.73rem; color: var(--muted); margin-bottom: 0.3rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-stats { display: flex; gap: 0.6rem; font-size: 0.72rem; color: var(--muted); flex-wrap: wrap; }
+    .card-stats .disabled { color: var(--red); }
+    .card-date { font-size: 0.7rem; color: var(--muted2); margin-top: 0.2rem; }
+    .card-link { font-size: 0.72rem; color: var(--accent); text-decoration: none; margin-top: 0.3rem; display: inline-block; }
+    .card-link:hover { text-decoration: underline; }
+
+    /* ── Empty/loading states ── */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--muted);
+    }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .empty-state p { margin: 0.3rem 0; font-size: 0.85rem; }
+
+    /* ── Database tab ── */
+    #tab-database { flex-direction: column; overflow: hidden; }
+    .db-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+    .db-filters { display: flex; gap: 0.3rem; }
+    .filter-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 0.3rem 0.65rem;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .filter-btn:hover { background: var(--border); color: var(--text); }
+    .filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(124,106,247,0.1); }
+    .db-view-toggle { display: flex; gap: 0.3rem; }
+    .db-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem 1.25rem;
+    }
+
+    /* ── Posts cards view ── */
+    .post-list { display: flex; flex-direction: column; gap: 0.65rem; }
+    .post-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.8rem 1rem;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .post-card:hover { border-color: var(--muted); }
+    .post-card.expanded { border-color: var(--accent); }
+    .post-card-top { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; justify-content: space-between; }
+    .post-card-left { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .badge {
+      font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+      padding: 0.18rem 0.45rem; border-radius: 4px; letter-spacing: 0.04em;
+    }
+    .badge.youtube { background: rgba(255,59,48,0.2); color: var(--yt); }
+    .badge.tiktok { background: rgba(37,244,238,0.15); color: #25f4ee; }
+    .badge.instagram { background: rgba(228,64,95,0.2); color: #e4405f; }
+    .stratum-badge {
+      font-size: 0.68rem; background: rgba(124,106,247,0.2); color: var(--accent);
+      padding: 0.18rem 0.45rem; border-radius: 4px;
+    }
+    .query-badge {
+      font-size: 0.68rem; background: rgba(255,214,10,0.15); color: var(--yellow);
+      padding: 0.18rem 0.45rem; border-radius: 4px;
+      max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .post-card-meta { color: var(--muted); font-size: 0.75rem; }
+    .post-card-caption { margin: 0.4rem 0 0; font-size: 0.85rem; color: var(--text); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .post-card-metrics { display: flex; gap: 0.9rem; margin-top: 0.4rem; font-size: 0.78rem; color: var(--muted); }
+    .post-card a.ext-link { color: var(--accent); font-size: 0.75rem; text-decoration: none; }
+    .post-card a.ext-link:hover { text-decoration: underline; }
+    .comments-panel {
+      margin-top: 0.75rem; padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+      max-height: 350px; overflow-y: auto;
+      font-size: 0.82rem;
+    }
+    .comment { padding: 0.4rem 0; border-bottom: 1px solid var(--border); }
+    .comment:last-child { border-bottom: none; }
+    .comment-meta { color: var(--muted); font-size: 0.72rem; margin-bottom: 0.1rem; }
+    .comment-text { white-space: pre-wrap; word-break: break-word; }
+    .comment.depth-1 { margin-left: 1rem; border-left: 2px solid var(--border); padding-left: 0.5rem; }
+
+    /* ── Data table ── */
+    .data-table-wrap { overflow-x: auto; }
+    .data-table {
+      width: 100%; border-collapse: collapse; font-size: 0.78rem;
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
+    }
+    .data-table th, .data-table td { border-bottom: 1px solid var(--border); padding: 0.45rem 0.7rem; text-align: left; }
+    .data-table th { background: var(--border); color: var(--muted); font-weight: 600; white-space: nowrap; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .data-table td { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .data-table td.wide { max-width: 280px; white-space: normal; }
+
+    /* ── Modal ── */
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.65);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100;
+      opacity: 0; pointer-events: none; transition: opacity 0.15s;
+    }
+    .modal-backdrop.show { opacity: 1; pointer-events: auto; }
+    .modal {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.5rem; max-width: 380px; width: 90%;
+      transform: scale(0.95); transition: transform 0.15s;
+    }
+    .modal-backdrop.show .modal { transform: scale(1); }
+    .modal h3 { margin: 0 0 0.5rem; font-size: 1rem; }
+    .modal p { margin: 0 0 1.25rem; color: var(--muted); font-size: 0.875rem; }
+    .modal-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+
+    /* ── Video metadata / transcript display ── */
+    .meta-block { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.5rem; }
+    .meta-row { display: flex; gap: 0.5rem; font-size: 0.8rem; align-items: baseline; }
+    .meta-key { color: var(--muted); font-size: 0.72rem; min-width: 68px; flex-shrink: 0; }
+    .tags-list { color: var(--muted); font-style: italic; }
+    .desc-details { font-size: 0.8rem; }
+    .desc-details summary { cursor: pointer; color: var(--muted); font-size: 0.78rem; padding: 0.2rem 0; user-select: none; }
+    .desc-details summary:hover { color: var(--text); }
+    .desc-body { margin-top: 0.35rem; padding: 0.5rem 0.65rem; background: var(--bg); border-radius: 6px; font-size: 0.8rem; white-space: pre-wrap; word-break: break-word; color: var(--muted); max-height: 180px; overflow-y: auto; line-height: 1.55; }
+    .summary-text { color: var(--text); }
+
+    /* ── Annotation tab controls ── */
+    #tab-annotate { flex-direction: column; overflow: hidden; }
+    .anno-chip {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.77rem;
+      padding: 0.32rem 0.55rem;
+      user-select: none;
+    }
+    .anno-chip.active { border-color: var(--accent); background: rgba(124,106,247,0.2); }
+    .anno-chip.focus { outline: 2px solid rgba(124,106,247,0.6); outline-offset: 1px; }
+    .anno-chip.confirmed { border-color: var(--green); background: rgba(52,199,89,0.2); }
+    .anno-chip.warn { border-color: var(--red); color: var(--red); }
+    #tab-annotate .db-content { height: calc(100vh - 152px); }
+    #tab-annotate .data-table-wrap { height: 100%; align-items: stretch; }
+    #annoPostPanel, #annoCommentPanel { height: 100%; overflow: auto; }
+    .anno-fade-in { animation: annoFadeIn 220ms ease; }
+    @keyframes annoFadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    #tab-annotate .data-table-wrap {
+      grid-template-columns: minmax(220px, 26%) minmax(300px, 1fr) minmax(260px, 30%);
+    }
+    .anno-guide-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      border-left: 3px solid var(--accent);
+      padding-left: 0.85rem !important;
+    }
+    .anno-guide-panel[data-platform="youtube"] { border-left-color: #ff453a; }
+    .anno-guide-panel[data-platform="tiktok"] { border-left-color: #25f4ee; }
+    .anno-guide-panel[data-platform="instagram"] { border-left-color: #e1306c; }
+    .anno-guide-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .anno-platform-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      background: rgba(124,106,247,0.15);
+      border: 1px solid var(--border);
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .anno-guide-panel[data-platform="youtube"] .anno-platform-badge { background: rgba(255,69,58,0.12); border-color: rgba(255,69,58,0.35); }
+    .anno-guide-panel[data-platform="tiktok"] .anno-platform-badge { background: rgba(37,244,238,0.1); border-color: rgba(37,244,238,0.35); }
+    .anno-guide-panel[data-platform="instagram"] .anno-platform-badge { background: rgba(225,48,108,0.12); border-color: rgba(225,48,108,0.35); }
+    .anno-guide-source {
+      font-size: 0.78rem;
+      color: var(--text);
+      font-weight: 500;
+      line-height: 1.45;
+    }
+    .anno-guide-brief {
+      display: flex;
+      flex-direction: column;
+      gap: 0.38rem;
+    }
+    .anno-guide-row {
+      display: grid;
+      grid-template-columns: 2.1rem 4.6rem 1fr;
+      gap: 0.35rem;
+      align-items: start;
+      font-size: 0.76rem;
+      line-height: 1.45;
+      padding: 0.32rem 0.4rem;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid transparent;
+    }
+    .anno-guide-row.active {
+      border-color: rgba(124,106,247,0.45);
+      background: rgba(124,106,247,0.1);
+    }
+    .anno-guide-row .g-num { color: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums; }
+    .anno-guide-row .g-label { font-weight: 700; font-size: 0.72rem; letter-spacing: 0.02em; }
+    .anno-guide-row .g-brief { color: var(--muted); }
+    .anno-guide-details {
+      margin-top: 0.15rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--bg);
+    }
+    .anno-guide-details summary {
+      cursor: pointer;
+      padding: 0.5rem 0.65rem;
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--muted);
+      user-select: none;
+      list-style: none;
+    }
+    .anno-guide-details summary::-webkit-details-marker { display: none; }
+    .anno-guide-details summary::before { content: '▸ '; color: var(--accent); }
+    .anno-guide-details[open] summary::before { content: '▾ '; }
+    .anno-guide-details summary:hover { color: var(--text); }
+    .anno-guide-full {
+      padding: 0.55rem 0.65rem 0.7rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      max-height: 340px;
+      overflow-y: auto;
+    }
+    .anno-guide-def {
+      font-size: 0.74rem;
+      line-height: 1.5;
+    }
+    .anno-guide-def h4 {
+      margin: 0 0 0.2rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+    .anno-guide-def p { margin: 0; color: var(--muted); }
+    .anno-guide-def.eu { padding-top: 0.45rem; border-top: 1px dashed var(--border); }
+    .anno-guide-def.eu h4 { color: var(--accent); }
+    .anno-severity-note {
+      font-size: 0.72rem;
+      color: var(--muted);
+      padding: 0.4rem 0.5rem;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      line-height: 1.45;
+    }
+    .anno-admin-panel { margin-top: 0.1rem; }
+    .anno-admin-panel summary {
+      font-size: 0.68rem;
+      color: var(--muted2);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* Experiments tab */
+    .exp-strip { display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; padding:0.5rem 0.75rem; background:rgba(37,244,238,0.06); border-radius:8px; border:1px solid var(--border); margin-bottom:0.75rem; font-size:0.8rem; }
+    .exp-acc { border:1px solid var(--border); border-radius:8px; margin-bottom:0.6rem; overflow:hidden; }
+    .exp-acc-h { width:100%; text-align:left; padding:0.55rem 0.75rem; background:var(--border); border:none; color:var(--text); font-weight:600; cursor:pointer; font-size:0.85rem; }
+    .exp-acc-b { padding:0.75rem; display:none; }
+    .exp-acc.open .exp-acc-b { display:block; }
+    .exp-log { font-family:ui-monospace,monospace; font-size:0.72rem; background:#0a0a0c; color:#c8d0d8; padding:0.5rem; border-radius:6px; max-height:180px; overflow:auto; white-space:pre-wrap; }
+    .exp-muted { color:var(--muted); font-size:0.78rem; }
+    .exp-bar { display:flex; gap:0.35rem; flex-wrap:wrap; margin:0.35rem 0; }
+    .exp-bar span { background:var(--border); padding:0.15rem 0.45rem; border-radius:4px; font-size:0.72rem; }
+
+    /* ── Misc ── */
+    .text-muted { color: var(--muted); }
+    .text-red { color: var(--red); }
+    .text-green { color: var(--green); }
+    .divider { height: 1px; background: var(--border); margin: 0.75rem 0; }
+    .progress-bar-wrap { background: var(--border); border-radius: 4px; height: 4px; overflow: hidden; }
+    .progress-bar { background: var(--accent); height: 100%; transition: width 0.3s; }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="app-header">
+  <h1 class="app-title">ToSMod</h1>
+  <div class="header-stats" id="headerStats">
+    <span class="hstat"><strong id="hs-posts">–</strong> posts</span>
+    <span class="hstat"><strong id="hs-comments">–</strong> comments</span>
+  </div>
+</header>
+<div id="setupBanner" style="display:none;padding:0.65rem 1rem;background:#2a2538;border-bottom:1px solid var(--border);font-size:0.82rem;">
+  <span id="setupBannerText"></span>
+  <span style="float:right;display:flex;gap:0.4rem;">
+    <button class="btn" id="setupOpenSettingsBtn" style="font-size:0.72rem;padding:0.22rem 0.5rem;">Open Settings</button>
+    <button class="btn" id="setupSeedBtn" style="font-size:0.72rem;padding:0.22rem 0.5rem;">Seed Demo</button>
+    <button class="btn" id="setupIgnoreBtn" style="font-size:0.72rem;padding:0.22rem 0.5rem;">Ignore</button>
+  </span>
+</div>
+
+<!-- Tab bar -->
+<nav class="tab-bar">
+  <button class="tab-btn" data-tab="settings">Settings</button>
+  <button class="tab-btn active" data-tab="search">Search</button>
+  <button class="tab-btn" data-tab="database">Database</button>
+  <button class="tab-btn" data-tab="annotate">Annotate</button>
+  <button class="tab-btn" data-tab="import">Import</button>
+  <button class="tab-btn" data-tab="experiments">Train &amp; Evaluate</button>
+</nav>
+
+<!-- ══ SETTINGS TAB ══ -->
+<div id="tab-settings" class="tab-content" style="flex-direction:column;overflow-y:auto;padding:1.25rem;gap:0.7rem;">
+  <h2 style="margin:0;font-size:1rem;">Settings & Secrets</h2>
+  <p class="text-muted" style="margin:0;font-size:0.82rem;">Values are stored in local <code>.env</code> for this ToSMod folder only.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:0.7rem;">
+    <div class="field-group"><label class="field-label">YOUTUBE_API_KEY</label><input id="setYoutubeKey" type="password" placeholder="AIza..."></div>
+    <div class="field-group"><label class="field-label">APIFY_API_KEY</label><input id="setApifyKey" type="password" placeholder="apify_api_..."></div>
+    <div class="field-group"><label class="field-label">TIKTOK_RESEARCH_CLIENT_KEY</label><input id="setTiktokClientKey" type="password"></div>
+    <div class="field-group"><label class="field-label">TIKTOK_RESEARCH_CLIENT_SECRET</label><input id="setTiktokClientSecret" type="password"></div>
+    <div class="field-group"><label class="field-label">REDDIT_CLIENT_ID</label><input id="setRedditClientId" type="password"></div>
+    <div class="field-group"><label class="field-label">REDDIT_CLIENT_SECRET</label><input id="setRedditClientSecret" type="password"></div>
+    <div class="field-group"><label class="field-label">REDDIT_USER_AGENT</label><input id="setRedditUserAgent" type="text" placeholder="ToSMod/0.1 (research)"></div>
+    <div class="field-group"><label class="field-label">ANONYMIZATION_SALT</label><input id="setAnonymizationSalt" type="password" placeholder="Generate once, keep stable"></div>
+    <div class="field-group"><label class="field-label">TOSMOD_ENABLE_OPT_IN</label><select id="setOptIn"><option value="0">0 (disabled)</option><option value="1">1 (enabled)</option></select></div>
+  </div>
+  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+    <button class="btn primary" id="settingsSaveBtn">Save settings</button>
+    <button class="btn" id="settingsVerifyBtn">Verify connectors</button>
+    <button class="btn" id="settingsReloadBtn">Reload status</button>
+  </div>
+  <div id="settingsStatusBox" class="text-muted" style="font-size:0.8rem;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0.6rem;"></div>
+</div>
+
+<!-- ══ SEARCH TAB ══ -->
+<div id="tab-search" class="tab-content active">
+  <aside class="search-sidebar">
+
+    <div class="field-group">
+      <div class="field-label">Platform</div>
+      <div class="platform-tabs">
+        <button class="plat-btn active" data-plat="youtube">YouTube</button>
+        <button class="plat-btn" data-plat="tiktok">TikTok</button>
+        <button class="plat-btn" data-plat="instagram">Instagram</button>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label" id="queryLabel">Search query</div>
+      <input type="text" id="searchQuery" placeholder='e.g. "body check short"' autocomplete="off">
+    </div>
+
+    <!-- ── YouTube-only controls ── -->
+    <div id="yt-controls">
+      <div class="field-group">
+        <div class="field-label">Channel scope (optional)</div>
+        <input type="text" id="ytChannelHandle" placeholder="@mrbeast or channel URL" autocomplete="off">
+        <div style="font-size:0.7rem;color:var(--muted);margin-top:0.25rem;">
+          Restricts <code>search.list</code> to this channel. Leave empty for global search. You can combine with a query above to search within the channel.
+        </div>
+      </div>
+      <div class="field-group" style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+        <label style="display:flex;align-items:center;gap:0.35rem;cursor:pointer;font-size:0.88rem;">
+          <input type="checkbox" id="ytShortsStrict">
+          Strict Shorts (≤3&nbsp;min by <code>contentDetails.duration</code>)
+        </label>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Results to fetch</div>
+        <select id="maxResults">
+          <option value="5">5</option>
+          <option value="10" selected>10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Video duration</div>
+        <select id="videoDuration">
+          <option value="short" selected>Short-form (API approximation ≤4 min)</option>
+          <option value="medium">Medium (4–20 min)</option>
+          <option value="long">Long (>20 min)</option>
+          <option value="any">Any duration</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Sort order</div>
+        <select id="sortOrder">
+          <option value="relevance" selected>Relevance</option>
+          <option value="viewCount">View count</option>
+          <option value="date">Most recent</option>
+          <option value="rating">Rating</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Min views</div>
+        <select id="minViews">
+          <option value="0" selected>Any</option>
+          <option value="10000">10K+</option>
+          <option value="100000">100K+</option>
+          <option value="500000">500K+</option>
+          <option value="1000000">1M+</option>
+          <option value="5000000">5M+</option>
+          <option value="10000000">10M+</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ── TikTok / Instagram controls ── -->
+    <div id="tt-controls" style="display:none; flex-direction:column; gap:1.1rem;">
+      <div class="field-group">
+        <div class="field-label">Mode</div>
+        <select id="ttMode">
+          <option value="hashtag" selected>Hashtag discovery (Apify)</option>
+          <option value="url">Single URL</option>
+        </select>
+      </div>
+      <!-- hashtag mode (hashtags typed in the main search field above) -->
+      <div id="tt-hashtag-opts">
+        <div class="field-group">
+          <div class="field-label">Max posts</div>
+          <select id="ttMaxPosts">
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+        <div class="field-group" style="margin-top:0.9rem;">
+          <div class="field-label">Comments per post</div>
+          <input type="number" id="ttCommentsPerPost" value="50" min="5" max="100" step="5">
+        </div>
+        <div class="field-group" style="margin-top:0.9rem;">
+          <div class="field-label">Min views (post-filter)</div>
+          <select id="ttMinViews">
+            <option value="0" selected>Any</option>
+            <option value="10000">10K+</option>
+            <option value="100000">100K+</option>
+            <option value="500000">500K+</option>
+            <option value="1000000">1M+</option>
+            <option value="5000000">5M+</option>
+            <option value="10000000">10M+</option>
+          </select>
+          <div style="font-size:0.7rem;color:var(--muted);margin-top:0.2rem;">Applied after discovery (may return fewer than max posts).</div>
+        </div>
+      </div>
+      <!-- single URL mode (URL in the main search field above) -->
+      <div id="tt-url-opts" style="display:none;">
+        <div class="field-group">
+          <div class="field-label">Collect</div>
+          <div class="radio-group">
+            <label class="radio-row"><input type="radio" name="ttCollectMode" value="post-only"> Metadata only</label>
+            <label class="radio-row"><input type="radio" name="ttCollectMode" value="post+comments" checked> Post + comments</label>
+          </div>
+          <div style="margin-top:0.4rem;">
+            <div class="field-label">Max comments</div>
+            <input type="number" id="ttMaxComments" value="100" min="10" max="500" step="10">
+          </div>
+        </div>
+      </div>
+      <div style="font-size:0.7rem;color:var(--muted);padding:0.4rem 0.5rem;background:rgba(37,244,238,0.06);border-radius:6px;border-left:2px solid #25f4ee;">
+        ⚠ Uses Apify credits. Check balance at console.apify.com/billing
+      </div>
+    </div>
+    <div id="ig-controls" style="display:none; flex-direction:column; gap:1.1rem;">
+      <div class="field-group">
+        <div class="field-label">Instagram mode</div>
+        <select id="igMode">
+          <option value="hashtag" selected>Hashtag discovery (Apify)</option>
+          <option value="url">Single post URL</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Max posts</div>
+        <select id="igMaxPosts">
+          <option value="5">5</option>
+          <option value="10" selected>10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Max comments (single URL)</div>
+        <input type="number" id="igMaxComments" value="100" min="10" max="500" step="10">
+      </div>
+      <div style="font-size:0.7rem;color:var(--muted);padding:0.4rem 0.5rem;background:rgba(255,255,255,0.04);border-radius:6px;border-left:2px solid #e1306c;">
+        Uses Apify Instagram actor. If missing keys, configure in Settings.
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label">Collection stratum</div>
+      <select id="collectStratum">
+      <option value="">— none —</option>
+        <option value="search_term" selected>search_term</option>
+        <option value="cross_platform">cross_platform</option>
+      </select>
+      <div class="text-muted" style="font-size:0.72rem;" title="search_term = topical/keyword collection; cross_platform = comparable collection across platforms.">Tag stored on each post for filtering and analysis.</div>
+    </div>
+
+    <!-- Collect mode (YouTube only) -->
+    <div id="yt-collect-opts">
+      <div class="field-group">
+        <div class="field-label">Collect</div>
+        <div class="radio-group">
+          <label class="radio-row">
+            <input type="radio" name="collectMode" value="post-only"> Metadata only
+          </label>
+          <label class="radio-row">
+            <input type="radio" name="collectMode" value="post+comments" checked> Post + comments
+          </label>
+        </div>
+        <div class="comments-sub" id="commentsSubOpts">
+          <div class="field-label" style="margin-top:0.4rem;">Max comments</div>
+          <input type="number" id="maxComments" value="200" min="10" max="1000" step="10">
+        </div>
+      </div>
+    </div>
+
+    <button class="search-btn" id="searchBtn" style="background:var(--yt)">Search YouTube</button>
+    <div class="quota-note" id="quotaNote">Each search uses ~101 quota units</div>
+  </aside>
+
+  <div class="search-results" id="searchResults">
+    <div class="empty-state">
+      <div class="icon">🔍</div>
+      <p>Enter a search query and click <strong>Search YouTube</strong></p>
+      <p class="text-muted">Results will appear here. Videos already in your DB are shown but skipped by default.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DATABASE TAB ══ -->
+<div id="tab-database" class="tab-content">
+  <div class="db-toolbar">
+    <div class="db-filters" id="dbFilters">
+      <button class="filter-btn active" data-platform="">All</button>
+      <button class="filter-btn" data-platform="youtube">YouTube</button>
+      <button class="filter-btn" data-platform="tiktok">TikTok</button>
+      <button class="filter-btn" data-platform="instagram">Instagram</button>
+    </div>
+    <div style="display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap;">
+      <select id="dbTagFilter" style="width:150px;">
+        <option value="">Tag (stratum): all</option>
+      </select>
+      <select id="dbSubTagFilter" style="width:170px;">
+        <option value="">Sub-tag (query): all</option>
+      </select>
+    </div>
+    <div class="db-view-toggle">
+      <button class="btn view-mode active" data-view="cards">Cards</button>
+      <button class="btn view-mode" data-view="table">Table</button>
+    </div>
+    <div style="margin-left:auto; display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+      <input type="text" id="igExtensionSubfolder" list="igExtensionSubfolderList" placeholder="IG subfolder (optional)" title="Relative to extension_scraper/, e.g. cross_platform or search_term" style="width:160px;padding:0.35rem 0.5rem;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:0.78rem;">
+      <datalist id="igExtensionSubfolderList">
+        <option value="cross_platform">
+        <option value="search_term">
+      </datalist>
+      <button class="btn" id="refreshInstagramBtn" title="Import Instagram JSON exports from extension_scraper into the active DB.">↻ Refresh Instagram Folder</button>
+      <button class="btn" id="backfillMetaBtn" title="Re-fetch missing thumbnail/title metadata for existing Instagram and TikTok posts.">🖼 Backfill IG/TT metadata</button>
+      <button class="btn" id="refreshDbBtn">↺ Refresh</button>
+      <button class="btn danger" id="deleteTagBtn">Delete Tag Filter</button>
+      <button class="btn danger" id="clearDbBtn">Clear DB…</button>
+    </div>
+  </div>
+  <div class="db-content" id="dbContent">
+    <div class="text-muted" style="padding:2rem; text-align:center;">Loading…</div>
+  </div>
+</div>
+
+<!-- ══ ANNOTATE TAB ══ -->
+<div id="tab-annotate" class="tab-content">
+  <div class="db-toolbar">
+    <div class="db-filters" id="annoPlatformFilters">
+      <button class="filter-btn active" data-platform="">All</button>
+      <button class="filter-btn" data-platform="youtube">YouTube</button>
+      <button class="filter-btn" data-platform="tiktok">TikTok</button>
+      <button class="filter-btn" data-platform="instagram">Instagram</button>
+    </div>
+    <div style="display:flex; gap:0.45rem; align-items:center; flex-wrap:wrap;">
+      <select id="annoStratum" style="width:150px;">
+        <option value="">All strata</option>
+        <option value="search_term">search_term</option>
+        <option value="cross_platform">cross_platform</option>
+      </select>
+      <select id="annoSubTag" style="width:190px;">
+        <option value="">All sub-categories</option>
+      </select>
+      <input type="text" id="annoPostId" placeholder="post_id (optional)" style="width:180px;">
+      <label class="radio-row" style="font-size:0.75rem;"><input type="checkbox" id="annoGifOnly"> Has GIF only</label>
+      <label class="radio-row" style="font-size:0.75rem;"><input type="checkbox" id="annoShuffle"> Shuffle</label>
+    </div>
+    <div style="margin-left:auto; display:flex; gap:0.45rem;">
+      <button class="btn" id="annoRefreshBtn">↺ Refresh</button>
+      <button class="btn" id="annoUndoBtn">← Undo</button>
+    </div>
+  </div>
+  <div class="db-content" style="display:flex; flex-direction:column; gap:0.75rem; overflow-y:auto;">
+    <div class="progress-bar-wrap" style="height:8px;"><div class="progress-bar" id="annoProgressBar" style="width:0%"></div></div>
+    <div id="annoProgressText" class="text-muted" style="font-size:0.82rem;">Loading…</div>
+    <div id="annoGoalText" class="text-muted" style="font-size:0.8rem;">Manual goal: loading…</div>
+    <details class="anno-admin-panel">
+      <summary>Silver labels (Ollama, optional)</summary>
+      <div style="display:flex; flex-wrap:wrap; gap:0.45rem; align-items:center; margin-top:0.35rem;">
+        <span class="text-muted" style="font-size:0.72rem;">YouTube only:</span>
+        <input type="number" id="annoLlmYtLimit" value="150" min="1" max="5000" title="Max unannotated rows to label" style="width:72px;">
+        <select id="annoLlmYtModel" style="width:130px;" title="Local Ollama model">
+          <option value="mistral">mistral</option>
+          <option value="gemma2:9b">gemma2:9b</option>
+        </select>
+        <button type="button" class="btn" id="annoLlmYtBtn" title="Writes label_source=llm, split=train (requires Ollama)">Run</button>
+        <span id="annoLlmYtStatus" class="text-muted" style="font-size:0.7rem;"></span>
+      </div>
+    </details>
+    <div id="annoModeHint" class="text-muted" style="font-size:0.75rem;">Select label (keys 0–6)</div>
+    <div class="data-table-wrap" style="display:grid; gap:0.75rem;">
+      <section class="post-card" id="annoPostPanel" style="cursor:default;">
+        <div class="field-label">Post Context</div>
+        <div id="annoThumbWrap" style="aspect-ratio:16/9; background:var(--border); border-radius:6px; overflow:hidden; margin-top:0.4rem;"></div>
+        <div id="annoPostTitle" style="font-weight:600; margin-top:0.45rem; font-size:0.86rem;"></div>
+        <div id="annoPostMeta" class="text-muted" style="font-size:0.75rem;"></div>
+        <div id="annoContext" style="margin-top:0.55rem; font-size:0.8rem; color:var(--muted); white-space:pre-wrap;"></div>
+      </section>
+      <section class="post-card" id="annoCommentPanel" style="cursor:default;">
+        <div class="field-label">Comment</div>
+        <div id="annoCommentMeta" class="text-muted" style="font-size:0.74rem; margin-top:0.35rem;"></div>
+        <div id="annoCommentText" style="margin-top:0.4rem; font-size:0.92rem; line-height:1.55; white-space:pre-wrap; max-height:200px; overflow:auto;"></div>
+        <div id="annoGifWrap" style="display:none; margin-top:0.5rem;"></div>
+        <div id="annoParentText" class="text-muted" style="margin-top:0.45rem; font-size:0.76rem; white-space:pre-wrap;"></div>
+
+        <div class="divider"></div>
+        <div class="field-label">Label (0–6)</div>
+        <div id="annoLabelButtons" style="display:flex; flex-wrap:wrap; gap:0.35rem; margin-top:0.35rem;"></div>
+        <div class="field-label" style="margin-top:0.65rem;">Severity (1–3 for non-SAFE)</div>
+        <div id="annoSeverityButtons" style="display:flex; gap:0.35rem; margin-top:0.35rem;"></div>
+        <div class="field-label" style="margin-top:0.65rem;">Modality (auto-detected)</div>
+        <div style="display:flex; gap:0.45rem; align-items:center; margin-top:0.35rem;">
+          <select id="annoModality" disabled style="max-width:220px; opacity:0.65;">
+            <option value="text">text</option>
+            <option value="gif">gif</option>
+            <option value="image">image</option>
+            <option value="text+gif">text+gif</option>
+            <option value="text+image">text+image</option>
+          </select>
+          <button class="btn" id="annoEditModalityBtn" style="font-size:0.72rem; padding:0.28rem 0.55rem;">Edit</button>
+        </div>
+        <label class="radio-row" style="margin-top:0.55rem;"><input type="checkbox" id="annoUncertain"> Uncertain (U)</label>
+        <div class="field-label" style="margin-top:0.65rem;">GIF/Image context note</div>
+        <textarea id="annoGifContext" placeholder="Describe why this visual is harmful in context (optional)" style="margin-top:0.35rem; min-height:72px; resize:vertical;"></textarea>
+        <div style="display:flex; gap:0.5rem; margin-top:0.7rem;">
+          <button class="btn" id="annoPrevBtn">← Previous</button>
+          <button class="btn primary" id="annoSaveBtn">Save & Next (Enter)</button>
+        </div>
+      </section>
+      <section class="post-card anno-guide-panel" id="annoGuidePanel" data-platform="">
+        <div class="anno-guide-header">
+          <div class="field-label" style="margin:0;">Annotation Guide</div>
+          <span class="anno-platform-badge" id="annoGuidePlatform">—</span>
+        </div>
+        <div class="anno-guide-source" id="annoGuideSource">Policy definitions load with each comment.</div>
+        <div class="anno-severity-note">Severity 1–3 applies to harmful labels: 1&nbsp;=&nbsp;mild, 2&nbsp;=&nbsp;moderate, 3&nbsp;=&nbsp;severe.</div>
+        <div class="anno-guide-brief" id="annoGuideBrief"></div>
+        <details class="anno-guide-details" id="annoGuideDetails">
+          <summary>Full policy definitions &amp; DSA typology</summary>
+          <div class="anno-guide-full" id="annoGuideFull"></div>
+        </details>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- ══ IMPORT TAB ══ -->
+<div id="tab-import" class="tab-content" style="flex-direction:column;overflow-y:auto;padding:1.5rem;gap:1rem;">
+  <h2 style="margin:0;font-size:1rem;">Import custom dataset</h2>
+  <p class="text-muted" style="font-size:0.85rem;">Upload CSV/JSON/JSONL and map it with a profile. Start with canonical CSV if unsure.</p>
+  <div style="display:flex;gap:0.6rem;flex-wrap:wrap;font-size:0.78rem;">
+    <a class="card-link" href="../examples/templates/import_template.csv" target="_blank" rel="noopener">Download import template</a>
+    <a class="card-link" href="../examples/data/demo_comments.csv" target="_blank" rel="noopener">View demo CSV</a>
+    <a class="card-link" href="../docs/IMPORT_MAPPING.md" target="_blank" rel="noopener">Import docs</a>
+  </div>
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0.6rem;">
+    <div class="field-label" style="margin-bottom:0.25rem;">Expected canonical columns</div>
+    <div style="font-size:0.78rem;color:var(--muted);">
+      Required: <code>platform</code>, <code>post_id</code>, <code>comment_id</code>, <code>text</code><br>
+      Optional: <code>label</code>, <code>severity</code>, <code>modality</code>, <code>collection_stratum</code>, <code>search_query</code>, <code>post_title</code>, <code>channel_name</code>, <code>url</code>
+    </div>
+  </div>
+  <div class="field-group">
+    <label class="field-label">Mapping profile</label>
+    <select id="importProfile" class="input-field"></select>
+    <div id="importProfileHint" class="text-muted" style="font-size:0.76rem;">Select a profile to see expected source shape.</div>
+  </div>
+  <div class="field-group">
+    <label class="field-label">File</label>
+    <input type="file" id="importFile" accept=".csv,.json,.jsonl" class="input-field">
+  </div>
+  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+    <button type="button" class="btn btn-secondary" id="importPreviewBtn" title="Preview first rows after profile mapping">Preview</button>
+    <button type="button" class="btn btn-secondary" id="importValidateBtn" title="Run validation and show row-level issues">Validate</button>
+    <button type="button" class="btn btn-primary" id="importRunBtn" title="Import full file using selected profile">Import</button>
+    <button type="button" class="btn btn-secondary" id="importCsvQuickBtn" title="Fast import for canonical CSV columns only">Quick CSV (canonical)</button>
+  </div>
+  <div id="importSummary" class="text-muted" style="font-size:0.8rem;"></div>
+  <pre id="importOutput" style="background:var(--card);border:1px solid var(--border);padding:1rem;border-radius:var(--radius);font-size:0.75rem;max-height:320px;overflow:auto;"></pre>
+  <h3 style="margin:0;font-size:0.9rem;">Data connectors</h3>
+  <div id="connectorsPanel" class="text-muted" style="font-size:0.8rem;">Loading connectors…</div>
+  <label style="font-size:0.8rem;display:flex;gap:0.4rem;align-items:center;">
+    <input type="checkbox" id="optInAck"> I accept responsibility for opt-in collectors (<a href="/docs/legal" target="_blank" rel="noopener">LEGAL.md</a>)
+  </label>
+</div>
+
+<!-- ══ EXPERIMENTS TAB ══ -->
+<div id="tab-experiments" class="tab-content">
+  <div class="db-content" style="padding:0.75rem 1rem; overflow-y:auto; max-height:calc(100vh - 120px);">
+    <div class="exp-strip" id="expEnvStrip">Checking training dependencies…</div>
+
+    <!-- ── Pre-trained models ── -->
+    <div class="exp-acc open" data-exp-acc>
+      <button type="button" class="exp-acc-h">Available base models</button>
+      <div class="exp-acc-b">
+        <p class="exp-muted" style="margin:0 0 0.5rem;">These models are downloaded from Hugging Face Hub on first use. No setup required beyond installing training dependencies (<code>pip install -e ".[training]"</code>).</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.5rem;">
+          <div class="post-card" style="padding:0.65rem;">
+            <div style="font-weight:600;font-size:0.85rem;">HateBERT</div>
+            <div class="exp-muted" style="font-size:0.76rem;margin:0.2rem 0;">GroNLP/hatebert — BERT pre-trained on Reddit hate speech. Strong baseline for harm detection.</div>
+            <a href="https://huggingface.co/GroNLP/hatebert" target="_blank" rel="noopener" class="card-link" style="font-size:0.75rem;">View on HF Hub</a>
+          </div>
+          <div class="post-card" style="padding:0.65rem;">
+            <div style="font-weight:600;font-size:0.85rem;">RoBERTa</div>
+            <div class="exp-muted" style="font-size:0.76rem;margin:0.2rem 0;">roberta-base — General-purpose encoder. Good cross-platform generalisation.</div>
+            <a href="https://huggingface.co/roberta-base" target="_blank" rel="noopener" class="card-link" style="font-size:0.75rem;">View on HF Hub</a>
+          </div>
+          <div class="post-card" style="padding:0.65rem;">
+            <div style="font-weight:600;font-size:0.85rem;">ToxicBERT</div>
+            <div class="exp-muted" style="font-size:0.76rem;margin:0.2rem 0;">unitary/toxic-bert — Fine-tuned on Jigsaw toxicity data. High recall on explicit harm.</div>
+            <a href="https://huggingface.co/unitary/toxic-bert" target="_blank" rel="noopener" class="card-link" style="font-size:0.75rem;">View on HF Hub</a>
+          </div>
+        </div>
+        <div id="expLocalModels" style="margin-top:0.6rem;" class="exp-muted">Scanning for locally fine-tuned models…</div>
+      </div>
+    </div>
+
+    <!-- ── Fine-tune ── -->
+    <div class="exp-acc open" data-exp-acc>
+      <button type="button" class="exp-acc-h">Fine-tune a model on your annotations</button>
+      <div class="exp-acc-b">
+        <p class="exp-muted" style="margin:0 0 0.6rem;">Annotate comments first (Annotate tab), then fine-tune one of the base models. Results are saved to <code>models/</code> and metrics recorded below.</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.5rem;margin-bottom:0.6rem;">
+          <div class="field-group">
+            <div class="field-label">Base model</div>
+            <select id="trainModel">
+              <option value="hatebert">HateBERT (recommended)</option>
+              <option value="roberta">RoBERTa</option>
+              <option value="toxicbert">ToxicBERT</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <div class="field-label">Data source</div>
+            <select id="trainDataSrc">
+              <option value="db">Annotated comments in database</option>
+              <option value="csv">CSV file (specify path below)</option>
+            </select>
+          </div>
+          <div class="field-group" id="trainCsvGroup" style="display:none;">
+            <div class="field-label">CSV path</div>
+            <input type="text" id="trainCsvPath" placeholder="data/annotations.csv">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Output folder</div>
+            <input type="text" id="trainOutputDir" value="models/my-model" placeholder="models/my-model">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Text variant</div>
+            <select id="trainVariant" title="T = plain text, T+E = keep emoji, T+ED = demojize emoji">
+              <option value="T+ED" selected>T+ED (demojize emoji)</option>
+              <option value="T+E">T+E (keep emoji)</option>
+              <option value="T">T (plain text only)</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+          <button class="btn primary" id="expRunTrainBtn" title="Runs training/finetune.py with the selected options">Fine-tune</button>
+          <label class="radio-row"><input type="checkbox" id="trainQuick" checked> Quick run (fewer epochs, for testing)</label>
+        </div>
+        <div class="progress-bar-wrap" style="margin-top:0.5rem;"><div class="progress-bar" id="expTrainProgress" style="width:0%"></div></div>
+        <pre class="exp-log" id="expTrainLog"></pre>
+      </div>
+    </div>
+
+    <!-- ── Corpus prep ── -->
+    <div class="exp-acc" data-exp-acc>
+      <button type="button" class="exp-acc-h">Corpus preparation</button>
+      <div class="exp-acc-b">
+        <div id="expCorpusStats" class="exp-muted">Loading corpus stats…</div>
+        <div class="exp-bar" id="expLabelDist"></div>
+        <div style="display:flex; flex-wrap:wrap; gap:0.45rem; margin-top:0.5rem;">
+          <button class="btn" id="expRefreshStatsBtn" title="Reload corpus statistics from the database">Refresh stats</button>
+          <button class="btn primary" id="expAssignSplitsBtn" title="Randomly assign train/val/test splits to human-annotated rows (stratified by label)">Assign train/val/test splits</button>
+          <button class="btn" id="expExportCsvBtn" title="Download all annotations as a CSV file">Export annotations CSV</button>
+        </div>
+        <div class="progress-bar-wrap" style="margin-top:0.5rem;"><div class="progress-bar" id="expJobProgress" style="width:0%"></div></div>
+        <div class="exp-muted" id="expJobLabel"></div>
+        <pre class="exp-log" id="expJobLog"></pre>
+      </div>
+    </div>
+
+    <!-- ── Metrics ── -->
+    <div class="exp-acc open" data-exp-acc>
+      <button type="button" class="exp-acc-h">Results (recent by default)</button>
+      <div class="exp-acc-b">
+        <div style="display:flex;gap:0.45rem;flex-wrap:wrap;align-items:center;">
+          <button class="btn" id="expRefreshMetricsBtn">Refresh</button>
+          <label class="radio-row" style="font-size:0.78rem;"><input type="checkbox" id="expShowAllMetrics"> Show full history</label>
+          <select id="expRecentDays" style="width:130px;">
+            <option value="30" selected>Last 30 days</option>
+            <option value="14">Last 14 days</option>
+            <option value="7">Last 7 days</option>
+          </select>
+          <input type="text" id="expFilterExperiment" placeholder="filter by experiment_id" style="width:180px;">
+        </div>
+        <div id="expMetricsTable" class="text-muted" style="margin-top:0.5rem;">Loading…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Clear DB Modal -->
+<div class="modal-backdrop" id="clearModal">
+  <div class="modal">
+    <h3>Clear database?</h3>
+    <p>Choose what to delete. This cannot be undone.</p>
+    <div class="field-group" style="margin-bottom:1rem;">
+      <select id="clearTarget">
+        <option value="all">Everything (posts + comments)</option>
+        <option value="posts">Posts only</option>
+        <option value="comments">Comments only</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="clearCancelBtn">Cancel</button>
+      <button class="btn danger" id="clearConfirmBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Utilities ──────────────────────────────────────────────────────────────
+  function esc(s) {
+    if (s == null) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  /** Use server proxy for TikTok / Instagram CDN images — direct links often return 403 in the browser */
+  function proxiedImgSrc(url) {
+    if (!url) return '';
+    const u = String(url);
+    if (u.startsWith('/')) return u;
+    const l = u.toLowerCase();
+    if (l.includes('tiktokcdn.') || l.includes('tiktokcdn-') ||
+        l.includes('ttwstatic.com') || l.includes('byteoversea.com') ||
+        l.includes('ibyteimg.com') ||
+        l.includes('cdninstagram.com') || l.includes('fbcdn.net'))
+      return '/api/image-proxy?url=' + encodeURIComponent(u);
+    return u;
+  }
+  async function api(path, opts, timeoutMs) {
+    const controller = new AbortController();
+    const timer = timeoutMs ? setTimeout(() => controller.abort(), timeoutMs) : null;
+    try {
+      const r = await fetch(path, { signal: controller.signal, ...opts });
+      if (!r.ok) {
+        const t = await r.text();
+        let msg = t;
+        try { msg = JSON.parse(t).error || t; } catch(_) {}
+        throw new Error(msg);
+      }
+      return r.json();
+    } catch(e) {
+      if (e.name === 'AbortError') throw new Error('Request timed out — try reducing max comments or collecting post-only first');
+      throw e;
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
+  }
+  function fmt(n) {
+    if (n == null) return '—';
+    if (n >= 1e9) return (n/1e9).toFixed(1) + 'B';
+    if (n >= 1e6) return (n/1e6).toFixed(1) + 'M';
+    if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
+    return String(n);
+  }
+
+  // ── Stats ──────────────────────────────────────────────────────────────────
+  async function loadStats() {
+    try {
+      const d = await api('/api/stats');
+      document.getElementById('hs-posts').textContent = d.total_posts ?? 0;
+      document.getElementById('hs-comments').textContent = d.total_comments ?? 0;
+    } catch(_) {}
+  }
+
+  // ── Settings / Setup ───────────────────────────────────────────────────────
+  let setupIgnored = false;
+  async function loadSettingsStatus() {
+    try {
+      const d = await api('/api/settings/status');
+      const box = document.getElementById('settingsStatusBox');
+      if (box) {
+        const warns = d.warnings || [];
+        box.innerHTML = `
+          <div><strong>Environment:</strong> ${d.env_file_present ? 'present' : 'missing'} · <strong>DB:</strong> ${esc(d.db_path || '')}</div>
+          <div>Rows: posts=${d.db_counts?.posts || 0}, comments=${d.db_counts?.comments || 0}, annotations=${d.db_counts?.annotations || 0}</div>
+          <div style="margin-top:0.4rem;"><strong>Warnings</strong>: ${warns.length ? warns.map(w => esc(w)).join(' | ') : 'none'}</div>
+        `;
+      }
+      if (!setupIgnored) renderSetupBanner(d);
+    } catch (e) {
+      const box = document.getElementById('settingsStatusBox');
+      if (box) box.textContent = 'Settings status failed: ' + e.message;
+    }
+  }
+
+  function renderSetupBanner(status) {
+    const banner = document.getElementById('setupBanner');
+    const txt = document.getElementById('setupBannerText');
+    if (!banner || !txt) return;
+    const warns = status?.warnings || [];
+    if (!warns.length) {
+      banner.style.display = 'none';
+      return;
+    }
+    txt.textContent = `Setup attention needed: ${warns.slice(0, 3).join(' | ')}`;
+    banner.style.display = 'block';
+  }
+
+  document.getElementById('setupOpenSettingsBtn')?.addEventListener('click', () => {
+    document.querySelector('.tab-btn[data-tab="settings"]')?.click();
+  });
+  document.getElementById('setupSeedBtn')?.addEventListener('click', async () => {
+    try {
+      await api('/api/settings/seed-demo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+      await loadStats();
+      await loadSettingsStatus();
+      alert('Demo data seeded successfully.');
+    } catch (e) {
+      alert('Seed failed: ' + e.message);
+    }
+  });
+  document.getElementById('setupIgnoreBtn')?.addEventListener('click', () => {
+    setupIgnored = true;
+    const banner = document.getElementById('setupBanner');
+    if (banner) banner.style.display = 'none';
+  });
+
+  function settingsPayload() {
+    return {
+      YOUTUBE_API_KEY: document.getElementById('setYoutubeKey')?.value || '',
+      APIFY_API_KEY: document.getElementById('setApifyKey')?.value || '',
+      TIKTOK_RESEARCH_CLIENT_KEY: document.getElementById('setTiktokClientKey')?.value || '',
+      TIKTOK_RESEARCH_CLIENT_SECRET: document.getElementById('setTiktokClientSecret')?.value || '',
+      REDDIT_CLIENT_ID: document.getElementById('setRedditClientId')?.value || '',
+      REDDIT_CLIENT_SECRET: document.getElementById('setRedditClientSecret')?.value || '',
+      REDDIT_USER_AGENT: document.getElementById('setRedditUserAgent')?.value || '',
+      ANONYMIZATION_SALT: document.getElementById('setAnonymizationSalt')?.value || '',
+      TOSMOD_ENABLE_OPT_IN: document.getElementById('setOptIn')?.value || '0',
+    };
+  }
+
+  document.getElementById('settingsSaveBtn')?.addEventListener('click', async () => {
+    try {
+      const r = await api('/api/settings/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settingsPayload()),
+      });
+      await loadSettingsStatus();
+      await loadConnectors();
+      document.getElementById('importSummary').textContent = `Settings saved: ${(r.saved || []).join(', ')}`;
+    } catch (e) {
+      alert('Save settings failed: ' + e.message);
+    }
+  });
+
+  document.getElementById('settingsVerifyBtn')?.addEventListener('click', async () => {
+    try {
+      const r = await api('/api/settings/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{}',
+      });
+      const failed = (r.checks || []).filter(c => !c.ok);
+      const msg = failed.length
+        ? `Missing configuration for: ${failed.map(c => c.id).join(', ')}`
+        : 'All configured connectors look ready.';
+      alert(msg + (r.apify_client_installed ? '' : '\nAlso install apify-client.'));
+    } catch (e) {
+      alert('Verify failed: ' + e.message);
+    }
+  });
+  document.getElementById('settingsReloadBtn')?.addEventListener('click', loadSettingsStatus);
+
+  // ── Tabs ───────────────────────────────────────────────────────────────────
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = document.getElementById('tab-' + btn.dataset.tab);
+      tab.classList.add('active');
+      if (btn.dataset.tab === 'settings') loadSettingsStatus();
+      if (btn.dataset.tab === 'database') { loadDbTags(); loadDb(currentDbPlatform, currentDbView); }
+      if (btn.dataset.tab === 'annotate') loadAnnotationNext();
+      if (btn.dataset.tab === 'import') { loadImportProfiles(); loadConnectors(); }
+      if (btn.dataset.tab === 'experiments') loadExperimentsTab();
+    });
+  });
+
+  document.querySelectorAll('[data-exp-acc]').forEach(acc => {
+    acc.querySelector('.exp-acc-h').addEventListener('click', () => {
+      acc.classList.toggle('open');
+    });
+  });
+
+  let expPollTimer = null;
+  let expActiveJobId = '';
+
+  async function loadExperimentsEnv() {
+    const el = document.getElementById('expEnvStrip');
+    try {
+      const d = await api('/api/experiments/env-check');
+      const m = d.modules || {};
+      const miss = Object.keys(m).filter(k => !m[k]);
+      if (miss.length === 0) {
+        el.textContent = 'Experiment deps: all core modules import OK. ' + (d.ollama_cli || '');
+      } else {
+        el.innerHTML = '<span class="text-red">Missing: ' + esc(miss.join(', ')) + '</span> — ' + esc(d.pip_hint || 'pip install -r experiments/requirements.txt');
+      }
+    } catch (e) {
+      el.textContent = 'Env check failed: ' + e.message;
+    }
+  }
+
+  async function loadExpCorpusStats() {
+    const box = document.getElementById('expCorpusStats');
+    const dist = document.getElementById('expLabelDist');
+    try {
+      const d = await api('/api/experiments/corpus-stats');
+      box.textContent = `Comments: ${d.total_comments ?? 0} | Annotated: ${d.annotated ?? 0} | GIF rows: ${d.gif_comments ?? 0} | IG GIF: ${d.instagram_gif_comments ?? 0}`;
+      const bl = d.by_label || {};
+      dist.innerHTML = Object.keys(bl).map(k => `<span>${esc(k)}: ${bl[k]}</span>`).join('') || '<span class="exp-muted">No labels yet</span>';
+    } catch (e) {
+      box.textContent = 'Stats error: ' + e.message;
+    }
+  }
+
+  async function pollExpJob(logEl, progEl, labelEl) {
+    if (!expActiveJobId) return;
+    try {
+      const d = await api('/api/experiments/job-status?job_id=' + encodeURIComponent(expActiveJobId));
+      const st = d.status || {};
+      if (logEl) logEl.textContent = d.log_tail || '';
+      if (labelEl) labelEl.textContent = `Job ${expActiveJobId} — ${st.state || '?'} ${st.phase || ''} ${st.done != null ? st.done + '/' + (st.total||'') : ''}`;
+      if (progEl && st.total > 0 && st.done != null) {
+        progEl.style.width = Math.min(100, Math.round(st.done / st.total * 100)) + '%';
+      }
+      if (st.state === 'done' || st.state === 'error') {
+        clearInterval(expPollTimer);
+        expPollTimer = null;
+        expActiveJobId = '';
+        loadExpCorpusStats();
+        loadExpMetricsTable();
+      }
+    } catch (_) {}
+  }
+
+  function startExpPoll(logEl, progEl, labelEl) {
+    if (expPollTimer) clearInterval(expPollTimer);
+    expPollTimer = setInterval(() => pollExpJob(logEl, progEl, labelEl), 1500);
+    pollExpJob(logEl, progEl, labelEl);
+  }
+
+  async function loadExpMetricsTable() {
+    const el = document.getElementById('expMetricsTable');
+    try {
+      const showAll = document.getElementById('expShowAllMetrics')?.checked;
+      const recent = document.getElementById('expRecentDays')?.value || '30';
+      const expId = (document.getElementById('expFilterExperiment')?.value || '').trim();
+      const params = new URLSearchParams({ limit: '300' });
+      if (!showAll) params.set('recent_days', recent);
+      if (expId) params.set('experiment_id', expId);
+      const d = await api('/api/experiments/results?' + params.toString());
+      const rows = d.rows || [];
+      if (!rows.length) { el.textContent = 'No rows in all_metrics.csv yet.'; return; }
+      const keys = Object.keys(rows[0]);
+      const hdr = `<div class="exp-muted">Showing ${rows.length} row(s)${showAll ? ' (full history)' : ` (recent ${recent} days)`}</div>`;
+      el.innerHTML = hdr + `<div class="data-table-wrap"><table class="data-table"><thead><tr>${keys.map(k => `<th>${esc(k)}</th>`).join('')}</tr></thead><tbody>` +
+        rows.map(r => `<tr>${keys.map(k => `<td class="wide">${esc(r[k]||'')}</td>`).join('')}</tr>`).join('') + '</tbody></table></div>';
+    } catch (e) {
+      el.textContent = 'Metrics error: ' + e.message;
+    }
+  }
+
+  async function loadExperimentsTab() {
+    loadExperimentsEnv();
+    loadExpCorpusStats();
+    loadExpMetricsTable();
+    loadLocalModels();
+  }
+
+  document.getElementById('expRefreshStatsBtn').addEventListener('click', () => { loadExpCorpusStats(); loadStats(); });
+  document.getElementById('expRefreshMetricsBtn').addEventListener('click', loadExpMetricsTable);
+  document.getElementById('expShowAllMetrics')?.addEventListener('change', loadExpMetricsTable);
+  document.getElementById('expRecentDays')?.addEventListener('change', loadExpMetricsTable);
+  document.getElementById('expFilterExperiment')?.addEventListener('change', loadExpMetricsTable);
+
+  document.getElementById('expAssignSplitsBtn').addEventListener('click', async () => {
+    try {
+      const r = await api('/api/experiments/preprocess/splits', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+      expActiveJobId = r.job_id;
+      startExpPoll(document.getElementById('expJobLog'), document.getElementById('expJobProgress'), document.getElementById('expJobLabel'));
+      alert('Splits job started: ' + r.job_id);
+    } catch (e) { alert(e.message); }
+  });
+
+  // ── Fine-tune button ─────────────────────────────────────────────────────
+  document.getElementById('trainDataSrc').addEventListener('change', function() {
+    document.getElementById('trainCsvGroup').style.display = this.value === 'csv' ? 'flex' : 'none';
+  });
+
+  document.getElementById('expRunTrainBtn').addEventListener('click', async () => {
+    const model   = document.getElementById('trainModel').value;
+    const src     = document.getElementById('trainDataSrc').value;
+    const csvPath = document.getElementById('trainCsvPath').value.trim();
+    const outDir  = document.getElementById('trainOutputDir').value.trim() || 'models/my-model';
+    const variant = document.getElementById('trainVariant').value;
+    const quick   = document.getElementById('trainQuick').checked;
+    const logEl   = document.getElementById('expTrainLog');
+    const prog    = document.getElementById('expTrainProgress');
+    if (src === 'csv' && !csvPath) { alert('Please enter a CSV path.'); return; }
+    logEl.textContent = 'Starting fine-tune…';
+    try {
+      const body = { base_model: model, data_src: src, csv_path: csvPath, output_dir: outDir, variant, quick };
+      const r = await api('/api/train/finetune', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      expActiveJobId = r.job_id;
+      startExpPoll(logEl, prog, null);
+    } catch (e) { logEl.textContent = 'Error: ' + e.message; }
+  });
+
+  async function loadLocalModels() {
+    const el = document.getElementById('expLocalModels');
+    if (!el) return;
+    try {
+      const d = await api('/api/train/local-models');
+      if (!d.models || !d.models.length) {
+        el.textContent = 'No locally fine-tuned models found in models/. Fine-tune one above.';
+        return;
+      }
+      el.innerHTML = '<div class="field-label" style="margin-bottom:0.3rem;">Locally fine-tuned models</div>' +
+        d.models.map(m => `<div class="post-card" style="padding:0.5rem;margin-bottom:0.3rem;font-size:0.8rem;">
+          <strong>${esc(m.name)}</strong>
+          <span class="exp-muted" style="margin-left:0.5rem;">${esc(m.path)}</span>
+          ${m.card ? `<a href="${esc(m.card)}" target="_blank" rel="noopener" class="card-link" style="margin-left:0.5rem;font-size:0.74rem;">Model card</a>` : ''}
+        </div>`).join('');
+    } catch (e) { el.textContent = 'Could not load local models.'; }
+  }
+
+  document.getElementById('expExportCsvBtn').addEventListener('click', async () => {
+    try {
+      const r = await api('/api/experiments/export-annotations');
+      alert('Exported ' + (r.rows ?? 0) + ' rows to ' + (r.path || ''));
+    } catch (e) { alert(e.message); }
+  });
+
+  // ── Platform switching ────────────────────────────────────────────────────
+  let currentPlatform = 'youtube';
+
+  function switchPlatform(plat) {
+    currentPlatform = plat;
+    document.querySelectorAll('.plat-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.plat === plat);
+    });
+    const isYt = plat === 'youtube';
+    const isTt = plat === 'tiktok';
+    const isIg = plat === 'instagram';
+    document.getElementById('yt-controls').style.display      = isYt ? 'flex' : 'none';
+    document.getElementById('yt-controls').style.flexDirection = 'column';
+    document.getElementById('yt-controls').style.gap           = '1.1rem';
+    document.getElementById('tt-controls').style.display      = isTt ? 'flex' : 'none';
+    document.getElementById('ig-controls').style.display      = isIg ? 'flex' : 'none';
+    document.getElementById('yt-collect-opts').style.display  = isYt ? 'block' : 'none';
+    document.getElementById('queryLabel').textContent =
+      isYt ? 'Search query' : (isTt ? 'TikTok input' : 'Instagram input');
+    document.getElementById('searchQuery').placeholder =
+      isYt ? 'Keywords (optional if channel scope set)' : (isTt ? 'Hashtags or TikTok URL' : 'Hashtags or Instagram post URL');
+    if (plat === 'tiktok') updateTikTokMainFieldLabel();
+    if (plat === 'instagram') updateInstagramMainFieldLabel();
+    const btn = document.getElementById('searchBtn');
+    btn.textContent = isYt ? 'Search YouTube' : (isTt ? 'Collect TikTok' : 'Collect Instagram');
+    btn.style.background = isYt ? 'var(--yt)' : (isTt ? '#25f4ee' : '#e1306c');
+    btn.style.color = '#fff';
+    document.getElementById('quotaNote').textContent =
+      isYt ? 'Each search uses ~101 quota units' : 'Runs Apify actor — uses credit';
+    document.getElementById('searchResults').innerHTML =
+      `<div class="empty-state"><div class="icon">${isYt ? '🔍' : (isTt ? '🎵' : '📷')}</div>`+
+      `<p>${isYt ? 'Enter keywords and/or a channel @handle, then <strong>Search YouTube</strong>' : (isTt ? 'Enter hashtag(s) or a single URL and click <strong>Collect TikTok</strong>' : 'Enter hashtag(s) or a single post URL and click <strong>Collect Instagram</strong>')}</p></div>`;
+  }
+
+  document.querySelectorAll('.plat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!btn.disabled) switchPlatform(btn.dataset.plat);
+    });
+  });
+
+  function updateTikTokMainFieldLabel() {
+    if (currentPlatform !== 'tiktok') return;
+    const mode = document.getElementById('ttMode').value;
+    const ql = document.getElementById('queryLabel');
+    const sq = document.getElementById('searchQuery');
+    if (mode === 'hashtag') {
+      ql.textContent = 'Hashtags';
+      sq.placeholder = 'mentalhealth, bodyimage — comma-separated, no # needed';
+    } else {
+      ql.textContent = 'TikTok video URL';
+      sq.placeholder = 'https://www.tiktok.com/@user/video/ID';
+    }
+  }
+  function updateInstagramMainFieldLabel() {
+    if (currentPlatform !== 'instagram') return;
+    const mode = document.getElementById('igMode').value;
+    const ql = document.getElementById('queryLabel');
+    const sq = document.getElementById('searchQuery');
+    if (mode === 'hashtag') {
+      ql.textContent = 'Hashtags';
+      sq.placeholder = 'fitness, skincare — comma-separated, no # needed';
+    } else {
+      ql.textContent = 'Instagram post URL';
+      sq.placeholder = 'https://www.instagram.com/p/SHORTCODE/';
+    }
+  }
+
+  // ── TikTok mode toggle (hashtag vs URL) ───────────────────────────────────
+  document.getElementById('ttMode').addEventListener('change', function() {
+    const isHashtag = this.value === 'hashtag';
+    document.getElementById('tt-hashtag-opts').style.display = isHashtag ? 'block' : 'none';
+    document.getElementById('tt-url-opts').style.display     = isHashtag ? 'none'  : 'block';
+    updateTikTokMainFieldLabel();
+  });
+  document.getElementById('igMode').addEventListener('change', function() {
+    updateInstagramMainFieldLabel();
+  });
+
+  // ── Search mode radio ──────────────────────────────────────────────────────
+  document.querySelectorAll('input[name="collectMode"]').forEach(r => {
+    r.addEventListener('change', () => {
+      document.getElementById('commentsSubOpts').style.display =
+        r.value === 'post+comments' ? 'block' : 'none';
+    });
+  });
+
+  // ── Search / Collect dispatcher ─────────────────────────────────────────────
+  let currentSearchQuery = '';
+  let searchResults = [];
+
+  document.getElementById('searchBtn').addEventListener('click', () => {
+    if (currentPlatform === 'youtube') doSearch();
+    else if (currentPlatform === 'tiktok') doCollectTikTok();
+    else if (currentPlatform === 'instagram') doCollectInstagram();
+  });
+  document.getElementById('searchQuery').addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      if (currentPlatform === 'youtube') doSearch();
+      else if (currentPlatform === 'tiktok') doCollectTikTok();
+      else if (currentPlatform === 'instagram') doCollectInstagram();
+    }
+  });
+
+  // ── TikTok collect dispatcher ──────────────────────────────────────────────
+  let ttSearchResults = [];   // discovered TikTok posts before collection
+
+  async function doCollectTikTok() {
+    const ttMode = document.getElementById('ttMode').value;
+    if (ttMode === 'hashtag') {
+      await doTikTokHashtagSearch();
+    } else {
+      await doTikTokSingleUrl();
+    }
+  }
+
+  async function doCollectInstagram() {
+    const igMode = document.getElementById('igMode').value;
+    if (igMode === 'hashtag') {
+      await doInstagramHashtagSearch();
+    } else {
+      await doInstagramSingleUrl();
+    }
+  }
+
+  async function doInstagramHashtagSearch() {
+    const raw = document.getElementById('searchQuery').value.trim();
+    if (!raw) { alert('Enter at least one hashtag.'); return; }
+    const maxPosts = parseInt(document.getElementById('igMaxPosts').value, 10) || 10;
+    const btn = document.getElementById('searchBtn');
+    const resultsEl = document.getElementById('searchResults');
+    btn.disabled = true;
+    btn.textContent = 'Discovering…';
+    resultsEl.innerHTML = '<div class="empty-state"><div class="spinner" style="margin:4rem auto;width:32px;height:32px;border-width:3px;"></div><p style="color:var(--muted);margin-top:1rem;">Discovering Instagram posts via Apify…</p></div>';
+    try {
+      const hashtags = raw.split(',').map(h => h.replace(/^#/, '').trim()).filter(Boolean);
+      const params = new URLSearchParams({ hashtags: hashtags.join(','), max_posts: String(maxPosts) });
+      const data = await api('/api/search/instagram?' + params.toString(), {}, 5 * 60 * 1000);
+      searchResults = data.results || [];
+      currentSearchQuery = hashtags[0] ? ('#' + hashtags[0]) : raw;
+      renderSearchResults(searchResults);
+      document.getElementById('quotaNote').textContent = `Found ${searchResults.length} Instagram posts`;
+    } catch (e) {
+      resultsEl.innerHTML = `<div class="empty-state"><p class="text-red">Instagram discovery failed: ${esc(e.message)}</p></div>`;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Collect Instagram';
+    }
+  }
+
+  async function doInstagramSingleUrl() {
+    const url = document.getElementById('searchQuery').value.trim();
+    if (!url || !url.includes('instagram.com')) {
+      alert('Enter a full Instagram post URL (instagram.com/p/...)');
+      return;
+    }
+    const stratum = document.getElementById('collectStratum').value || null;
+    const maxComments = parseInt(document.getElementById('igMaxComments').value, 10) || 100;
+    const label = '@instagram_url';
+    const btn = document.getElementById('searchBtn');
+    const resultsEl = document.getElementById('searchResults');
+    btn.disabled = true;
+    btn.textContent = 'Collecting…';
+    resultsEl.innerHTML = '<div class="empty-state"><div class="spinner" style="margin:4rem auto;width:32px;height:32px;border-width:3px;"></div></div>';
+    try {
+      const result = await api('/api/collect/instagram/url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, max_comments: maxComments, stratum, search_query: label }),
+      }, 7 * 60 * 1000);
+      const status = result.status === 'skipped'
+        ? '<span style="color:var(--yellow)">⏭ Skipped: already in DB</span>'
+        : `<span class="text-green">✅ Saved post <strong>${esc(result.post_id)}</strong> · ${result.comments_collected || 0} comments</span>`;
+      resultsEl.innerHTML = `<div class="results-header">${status}<a href="${esc(url)}" target="_blank" rel="noopener" style="margin-left:0.5rem;color:var(--accent);font-size:0.8rem;">Open ↗</a></div>`;
+      loadStats();
+    } catch (e) {
+      resultsEl.innerHTML = `<div class="empty-state"><p class="text-red">Instagram collect failed: ${esc(e.message)}</p></div>`;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Collect Instagram';
+    }
+  }
+
+  // ── TikTok hashtag: STEP 1 — discover posts (fast, no comments) ────────────
+  async function doTikTokHashtagSearch() {
+    const raw = document.getElementById('searchQuery').value.trim();
+    if (!raw) { alert('Enter at least one hashtag in the field above.'); return; }
+    const maxPosts = parseInt(document.getElementById('ttMaxPosts').value) || 10;
+    const minViews = document.getElementById('ttMinViews').value;
+
+    const btn = document.getElementById('searchBtn');
+    const resultsEl = document.getElementById('searchResults');
+    btn.disabled = true;
+    btn.textContent = 'Discovering…';
+    resultsEl.innerHTML = '<div class="empty-state"><div class="spinner" style="margin:4rem auto;width:32px;height:32px;border-width:3px;"></div>' +
+      '<p style="color:var(--muted);margin-top:1rem;">Discovering TikTok videos — usually ~30–60 seconds…</p></div>';
+    document.getElementById('quotaNote').textContent = 'Running Apify discovery (uses credit)';
+
+    try {
+      const hashtags = raw.split(',').map(h => h.replace(/^#/, '').trim()).filter(Boolean);
+      const params = new URLSearchParams({ hashtags: hashtags.join(','), max_posts: maxPosts, min_views: minViews });
+      const data = await api('/api/search/tiktok?' + params, {}, 5 * 60 * 1000);
+      ttSearchResults = data.results || [];
+      document.getElementById('quotaNote').textContent =
+        `Found ${ttSearchResults.length} videos for #${hashtags.join(', #')}`;
+      renderTikTokSearchResults(ttSearchResults, hashtags[0]);
+    } catch(e) {
+      resultsEl.innerHTML = `<div class="empty-state"><p class="text-red">Discovery failed: ${esc(e.message)}</p></div>`;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Collect TikTok';
+    }
+  }
+
+  function renderTikTokSearchResults(results, firstHashtag) {
+    const el = document.getElementById('searchResults');
+    if (!results.length) {
+      el.innerHTML = '<div class="empty-state"><div class="icon">😶</div><p>No results. Try a different hashtag or increase max posts.</p></div>';
+      return;
+    }
+    const newCount   = results.filter(r => !r.in_db).length;
+    const inDbCount  = results.filter(r => r.in_db).length;
+
+    const header = `
+      <div class="results-header">
+        <span class="results-meta">
+          ${results.length} video${results.length !== 1 ? 's' : ''} found
+          ${inDbCount ? `· <span style="color:var(--green)">${inDbCount} already in DB</span>` : ''}
+        </span>
+        <div class="results-actions">
+          <button class="btn" id="ttSelAllBtn">Select all</button>
+          <button class="btn" id="ttSelNewBtn">Select new only</button>
+          <button class="btn" id="ttSelNoneBtn">None</button>
+          <button class="btn primary" id="ttAddToDbBtn" disabled>Add 0 to DB</button>
+        </div>
+      </div>
+      <div id="ttCollectProgress" style="display:none;">
+        <div class="progress-bar-wrap"><div class="progress-bar" id="ttProgressBar" style="width:0%"></div></div>
+        <div id="ttCollectStatus" style="font-size:0.78rem;color:var(--muted);margin-top:0.35rem;"></div>
+      </div>`;
+
+    const grid = `<div class="results-grid">${results.map(r => renderTikTokCard(r)).join('')}</div>`;
+    el.innerHTML = header + grid;
+
+    el.querySelectorAll('.card-checkbox').forEach(cb => cb.addEventListener('change', updateTikTokSelCount));
+    document.getElementById('ttSelAllBtn').onclick = () => {
+      el.querySelectorAll('.card-checkbox').forEach(cb => { cb.checked = true; });
+      updateTikTokSelCount();
+    };
+    document.getElementById('ttSelNewBtn').onclick = () => {
+      el.querySelectorAll('.result-card').forEach(card => {
+        card.querySelector('.card-checkbox').checked = !card.classList.contains('in-db');
+      });
+      updateTikTokSelCount();
+    };
+    document.getElementById('ttSelNoneBtn').onclick = () => {
+      el.querySelectorAll('.card-checkbox').forEach(cb => { cb.checked = false; });
+      updateTikTokSelCount();
+    };
+    document.getElementById('ttAddToDbBtn').onclick = collectSelectedTikTok;
+
+    // Auto-select new ones
+    el.querySelectorAll('.result-card').forEach(card => {
+      if (!card.classList.contains('in-db')) card.querySelector('.card-checkbox').checked = true;
+    });
+    updateTikTokSelCount();
+  }
+
+  function renderTikTokCard(r) {
+    const inDb = r.in_db;
+    const cover = r.cover_url
+      ? `<img src="${esc(proxiedImgSrc(r.cover_url))}" alt="" loading="lazy">`
+      : `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-size:2rem;">🎵</div>`;
+    return `
+      <div class="result-card${inDb ? ' in-db' : ''}" data-id="${esc(r.id)}" data-url="${esc(r.url)}">
+        <div class="card-thumb-wrap">
+          <input type="checkbox" class="card-checkbox"${inDb ? ' title="Already in DB"' : ''}>
+          ${cover}
+          ${inDb ? '<span class="card-in-db-badge">✓ IN DB</span>' : ''}
+        </div>
+        <div class="card-status-overlay"></div>
+        <div class="card-body">
+          <div class="card-title" title="${esc(r.caption)}">${esc(r.caption || '(no caption)')}</div>
+          <div class="card-channel" style="color:#25f4ee;">@${esc(r.author)}</div>
+          <div class="card-stats">
+            <span>👁 ${fmt(r.views)}</span>
+            <span>💬 ${fmt(r.comments_count)}</span>
+            <span>👍 ${fmt(r.likes)}</span>
+          </div>
+          <a class="card-link" href="${esc(r.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Open ↗</a>
+        </div>
+      </div>`;
+  }
+
+  function updateTikTokSelCount() {
+    const checked = document.querySelectorAll('#searchResults .card-checkbox:checked').length;
+    const btn = document.getElementById('ttAddToDbBtn');
+    if (btn) { btn.disabled = checked === 0; btn.textContent = `Add ${checked} to DB`; }
+  }
+
+  async function collectSelectedTikTok() {
+    const stratum = document.getElementById('collectStratum').value || 'search_term';
+    const maxComments = parseInt(document.getElementById('ttCommentsPerPost').value) || 50;
+    const searchLabel = '#' + (document.getElementById('searchQuery').value.split(',')[0].replace(/^#/,'')).trim();
+
+    const checked = [...document.querySelectorAll('#searchResults .card-checkbox:checked')]
+      .map(cb => cb.closest('.result-card'))
+      .map(card => ({ id: card.dataset.id, url: card.dataset.url }));
+    if (!checked.length) return;
+
+    const addBtn = document.getElementById('ttAddToDbBtn');
+    addBtn.disabled = true; addBtn.textContent = 'Collecting…';
+
+    const progressWrap = document.getElementById('ttCollectProgress');
+    const progressBar  = document.getElementById('ttProgressBar');
+    const statusEl     = document.getElementById('ttCollectStatus');
+    progressWrap.style.display = 'block';
+
+    let done = 0, succeeded = 0, failed = 0;
+
+    for (const { id, url } of checked) {
+      const card    = document.querySelector(`.result-card[data-id="${id}"]`);
+      const overlay = card.querySelector('.card-status-overlay');
+      setOverlay(overlay, 'loading', '<div class="spinner"></div><span>Collecting…</span>');
+
+      try {
+        // 7-minute timeout per video (Apify comments run)
+        const result = await api('/api/collect/tiktok/url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, mode: 'post+comments', max_comments: maxComments, stratum, search_query: searchLabel }),
+        }, 7 * 60 * 1000);
+        if (result.status === 'skipped' && result.reason_code === 'already_exists') {
+          setOverlay(overlay, 'skipped', '<span>⏭ Skipped (already in DB)</span>');
+          card.classList.add('in-db');
+        } else {
+          const gifLabel = result.gif_comments ? ` · 🎭 ${result.gif_comments} GIF` : '';
+          const archLabel = result.stickers_archived ? ` · 💾 ${result.stickers_archived} saved` : '';
+          const label = result.status === 'partial'
+            ? `⚠ Post saved, comments failed`
+            : `✓ ${result.comments_collected} comments${gifLabel}${archLabel}`;
+          setOverlay(overlay, result.status === 'partial' ? 'error' : 'success', `<span>${label}</span>`);
+          card.classList.add('in-db');
+          succeeded++;
+        }
+      } catch(e) {
+        setOverlay(overlay, 'error', `<span>✗ ${esc(e.message.slice(0, 60))}</span>`);
+        failed++;
+      }
+      done++;
+      progressBar.style.width = `${(done / checked.length) * 100}%`;
+      statusEl.textContent = `${done}/${checked.length} processed · ${succeeded} saved · ${failed} failed`;
+    }
+
+    addBtn.disabled = false;
+    addBtn.textContent = `Done (${succeeded}/${checked.length})`;
+    loadStats();
+  }
+
+  // ── TikTok single URL ──────────────────────────────────────────────────────
+  function tiktokSearchQueryTagFromUrl(url) {
+    const m = url.match(/tiktok\.com\/@([^/?#]+)/i);
+    return m ? ('@' + m[1]) : '';
+  }
+
+  async function doTikTokSingleUrl() {
+    const url = document.getElementById('searchQuery').value.trim();
+    if (!url || !url.includes('tiktok.com')) {
+      alert('Enter a full TikTok video URL in the field above (must include tiktok.com).');
+      return;
+    }
+    const stratum     = document.getElementById('collectStratum').value || null;
+    const mode        = document.querySelector('input[name="ttCollectMode"]:checked').value;
+    const maxComments = parseInt(document.getElementById('ttMaxComments').value) || 100;
+    const label       = tiktokSearchQueryTagFromUrl(url) || 'tiktok_url';
+
+    const btn = document.getElementById('searchBtn');
+    const resultsEl = document.getElementById('searchResults');
+    btn.disabled = true; btn.textContent = 'Collecting…';
+    resultsEl.innerHTML = '<div class="empty-state"><div class="spinner" style="margin:4rem auto;width:32px;height:32px;border-width:3px;"></div>' +
+      '<p style="color:var(--muted);margin-top:1rem;">Fetching post metadata and comments via Apify…</p></div>';
+
+    try {
+      const result = await api('/api/collect/tiktok/url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, mode, max_comments: maxComments, stratum, search_query: label }),
+      }, 7 * 60 * 1000);
+      const gif = result.gif_comments ? `· 🎭 ${result.gif_comments} GIF comments` : '';
+      const arch = result.stickers_archived ? ` · 💾 ${result.stickers_archived} sticker file(s) saved` : '';
+      const status = result.status === 'skipped'
+        ? `<span style="color:var(--yellow)">⏭ Skipped: already in DB</span>`
+        : result.status === 'partial'
+          ? `<span class="text-red">⚠ Post saved, comments failed: ${esc(result.comments_error || '')}</span>`
+          : `<span class="text-green">✅ Saved post <strong>${esc(result.post_id)}</strong> · ${result.comments_collected} comments ${gif}${arch}</span>`;
+      resultsEl.innerHTML = `<div class="results-header">${status}
+        <a href="${esc(url)}" target="_blank" rel="noopener" style="margin-left:0.5rem;color:var(--accent);font-size:0.8rem;">Open ↗</a>
+      </div>`;
+      loadStats();
+    } catch(e) {
+      resultsEl.innerHTML = `<div class="empty-state"><p class="text-red">Collect failed: ${esc(e.message)}</p></div>`;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Collect TikTok';
+    }
+  }
+
+  async function doSearch() {
+    const q = document.getElementById('searchQuery').value.trim();
+    const ch = document.getElementById('ytChannelHandle').value.trim();
+    const shortsStrict = document.getElementById('ytShortsStrict').checked;
+    if (!q && !ch) { alert('Enter a search query and/or a channel @handle (or channel URL).'); return; }
+    currentSearchQuery = q || ch;
+
+    const btn = document.getElementById('searchBtn');
+    btn.disabled = true;
+    btn.textContent = 'Searching…';
+
+    const targetCount = document.getElementById('maxResults').value;
+    const minViews    = document.getElementById('minViews').value;
+    const dur         = document.getElementById('videoDuration').value;
+    const ord         = document.getElementById('sortOrder').value;
+    const resultsEl   = document.getElementById('searchResults');
+    resultsEl.innerHTML = '<div class="empty-state"><div class="spinner" style="margin:4rem auto;width:32px;height:32px;border-width:3px;"></div></div>';
+
+    const minLabel = document.getElementById('minViews').options[document.getElementById('minViews').selectedIndex].text;
+    document.getElementById('quotaNote').textContent =
+      `Searching for ${targetCount} videos${minViews > 0 ? ' with ' + minLabel + ' views' : ''} — may use up to 500 quota units`;
+
+    try {
+      const params = new URLSearchParams({ target_count: targetCount, min_views: minViews, duration: dur, order: ord });
+      if (q) params.set('q', q);
+      if (ch) params.set('channel_handle', ch);
+      if (shortsStrict) params.set('shorts_strict', '1');
+      const data = await api('/api/search/youtube?' + params);
+      searchResults = data.results || [];
+      const pagesTxt = data.pages_fetched > 1 ? `, ${data.pages_fetched} pages fetched` : '';
+      document.getElementById('quotaNote').textContent =
+        `Used ~${data.quota_used ?? 101} quota units${pagesTxt}`;
+      renderSearchResults(searchResults);
+    } catch(e) {
+      resultsEl.innerHTML = `<div class="empty-state"><p class="text-red">Search failed: ${esc(e.message)}</p></div>`;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = currentPlatform === 'youtube'
+        ? 'Search YouTube'
+        : (currentPlatform === 'tiktok' ? 'Collect TikTok' : 'Collect Instagram');
+    }
+  }
+
+  function renderSearchResults(results) {
+    const el = document.getElementById('searchResults');
+    if (!results.length) {
+      el.innerHTML = '<div class="empty-state"><div class="icon">😶</div><p>No results found. Try a different query or settings.</p></div>';
+      return;
+    }
+    const newCount = results.filter(r => !r.in_db).length;
+    const inDbCount = results.filter(r => r.in_db).length;
+
+    const header = `
+      <div class="results-header">
+        <span class="results-meta">
+          ${results.length} result${results.length !== 1 ? 's' : ''}
+          ${inDbCount ? `· <span style="color:var(--green)">${inDbCount} already in DB</span>` : ''}
+        </span>
+        <div class="results-actions">
+          <button class="btn" id="selAllBtn">Select all</button>
+          <button class="btn" id="selNewBtn">Select new only</button>
+          <button class="btn" id="selNoneBtn">None</button>
+          <button class="btn primary" id="addToDbBtn" disabled>Add 0 to DB</button>
+        </div>
+      </div>
+      <div id="collectProgress" style="display:none;">
+        <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+        <div id="collectStatus" style="font-size:0.78rem; color:var(--muted); margin-top:0.35rem;"></div>
+      </div>
+    `;
+
+    const grid = `<div class="results-grid">${results.map(r => renderCard(r)).join('')}</div>`;
+    el.innerHTML = header + grid;
+
+    // Wire checkboxes
+    el.querySelectorAll('.card-checkbox').forEach(cb => {
+      cb.addEventListener('change', updateSelectionCount);
+    });
+
+    // Select controls
+    document.getElementById('selAllBtn').onclick = () => {
+      el.querySelectorAll('.card-checkbox').forEach(cb => { cb.checked = true; });
+      updateSelectionCount();
+    };
+    document.getElementById('selNewBtn').onclick = () => {
+      el.querySelectorAll('.result-card').forEach(card => {
+        const cb = card.querySelector('.card-checkbox');
+        cb.checked = !card.classList.contains('in-db');
+      });
+      updateSelectionCount();
+    };
+    document.getElementById('selNoneBtn').onclick = () => {
+      el.querySelectorAll('.card-checkbox').forEach(cb => { cb.checked = false; });
+      updateSelectionCount();
+    };
+    document.getElementById('addToDbBtn').onclick = collectSelected;
+
+    // Auto-select new ones
+    el.querySelectorAll('.result-card').forEach(card => {
+      if (!card.classList.contains('in-db')) {
+        card.querySelector('.card-checkbox').checked = true;
+      }
+    });
+    updateSelectionCount();
+  }
+
+  function renderCard(r) {
+    const inDb = r.in_db;
+    const noComments = r.comments_disabled;
+    return `
+      <div class="result-card${inDb ? ' in-db' : ''}" data-id="${esc(r.id)}" data-url="${esc(r.url || '')}">
+        <div class="card-thumb-wrap">
+          <input type="checkbox" class="card-checkbox"${inDb ? ' title="Already in DB"' : ''}>
+          <img src="${esc(proxiedImgSrc(r.thumbnail))}" alt="" loading="lazy">
+          ${inDb ? '<span class="card-in-db-badge">✓ IN DB</span>' : ''}
+        </div>
+        <div class="card-status-overlay"></div>
+        <div class="card-body">
+          <div class="card-title" title="${esc(r.title)}">${esc(r.title)}</div>
+          <div class="card-channel">${esc(r.channel)}</div>
+          <div class="card-stats">
+            <span>👁 ${fmt(r.views)}</span>
+            ${noComments
+              ? '<span class="disabled">💬 disabled</span>'
+              : `<span>💬 ${fmt(r.comments_count)}</span>`}
+            <span>👍 ${fmt(r.likes)}</span>
+          </div>
+          <div class="card-date">${esc(r.published_at)}</div>
+          <a class="card-link" href="${esc(r.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Open ↗</a>
+        </div>
+      </div>`;
+  }
+
+  function updateSelectionCount() {
+    const checked = document.querySelectorAll('#searchResults .card-checkbox:checked').length;
+    const btn = document.getElementById('addToDbBtn');
+    if (btn) {
+      btn.disabled = checked === 0;
+      btn.textContent = `Add ${checked} to DB`;
+    }
+  }
+
+  async function collectSelected() {
+    if (currentPlatform === 'instagram') {
+      return collectSelectedInstagram();
+    }
+    const stratum = document.getElementById('collectStratum').value || null;
+    const mode = document.querySelector('input[name="collectMode"]:checked').value;
+    const maxComments = parseInt(document.getElementById('maxComments').value) || 200;
+    const query = currentSearchQuery;
+
+    const checked = [...document.querySelectorAll('#searchResults .card-checkbox:checked')]
+      .map(cb => cb.closest('.result-card').dataset.id);
+
+    if (!checked.length) return;
+
+    // Disable the button
+    const addBtn = document.getElementById('addToDbBtn');
+    addBtn.disabled = true;
+    addBtn.textContent = `Collecting…`;
+
+    const progressWrap = document.getElementById('collectProgress');
+    const progressBar = document.getElementById('progressBar');
+    const statusEl = document.getElementById('collectStatus');
+    progressWrap.style.display = 'block';
+
+    let done = 0, succeeded = 0, failed = 0;
+
+    for (const vid of checked) {
+      const card = document.querySelector(`.result-card[data-id="${vid}"]`);
+      const overlay = card.querySelector('.card-status-overlay');
+      setOverlay(overlay, 'loading', '<div class="spinner"></div><span>Collecting…</span>');
+
+      try {
+        const body = { search_query: query, stratum, mode, max_comments: maxComments };
+        // 3-minute timeout per video — post+comments with 200 comments can take ~60s
+        const result = await api(`/api/collect/youtube/${encodeURIComponent(vid)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        }, 3 * 60 * 1000);
+        if (result.status === 'skipped' && result.reason_code === 'already_exists') {
+          setOverlay(overlay, 'skipped', '<span>⏭ Skipped (already in DB)</span>');
+          card.classList.add('in-db');
+        } else {
+          const cmtLabel = mode === 'post+comments' ? ` · ${result.comments_collected} comments` : '';
+          setOverlay(overlay, 'success', `<span>✓ Saved${cmtLabel}</span>`);
+          card.classList.add('in-db');
+          succeeded++;
+        }
+      } catch(e) {
+        setOverlay(overlay, 'error', `<span>✗ ${esc(e.message.slice(0, 60))}</span>`);
+        failed++;
+      }
+      done++;
+      progressBar.style.width = `${(done / checked.length) * 100}%`;
+      statusEl.textContent = `${done}/${checked.length} processed · ${succeeded} saved · ${failed} failed`;
+    }
+
+    addBtn.disabled = false;
+    addBtn.textContent = `Done (${succeeded}/${checked.length})`;
+    loadStats();
+  }
+
+  async function collectSelectedInstagram() {
+    const stratum = document.getElementById('collectStratum').value || null;
+    const maxComments = parseInt(document.getElementById('igMaxComments').value, 10) || 100;
+    const checked = [...document.querySelectorAll('#searchResults .card-checkbox:checked')]
+      .map(cb => cb.closest('.result-card'))
+      .map(card => ({ id: card.dataset.id, url: card.dataset.url }));
+    if (!checked.length) return;
+    const addBtn = document.getElementById('addToDbBtn');
+    addBtn.disabled = true;
+    addBtn.textContent = 'Collecting…';
+    const progressWrap = document.getElementById('collectProgress');
+    const progressBar = document.getElementById('progressBar');
+    const statusEl = document.getElementById('collectStatus');
+    progressWrap.style.display = 'block';
+    let done = 0, succeeded = 0, failed = 0;
+    for (const { id, url } of checked) {
+      const card = document.querySelector(`.result-card[data-id="${id}"]`);
+      const overlay = card.querySelector('.card-status-overlay');
+      setOverlay(overlay, 'loading', '<div class="spinner"></div><span>Collecting…</span>');
+      try {
+        const result = await api('/api/collect/instagram/url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, max_comments: maxComments, stratum, search_query: currentSearchQuery || 'instagram' }),
+        }, 7 * 60 * 1000);
+        if (result.status === 'skipped') {
+          setOverlay(overlay, 'skipped', '<span>⏭ Skipped (already in DB)</span>');
+        } else {
+          setOverlay(overlay, 'success', `<span>✓ Saved · ${result.comments_collected || 0} comments</span>`);
+          succeeded++;
+        }
+        card.classList.add('in-db');
+      } catch (e) {
+        setOverlay(overlay, 'error', `<span>✗ ${esc(e.message.slice(0, 60))}</span>`);
+        failed++;
+      }
+      done++;
+      progressBar.style.width = `${(done / checked.length) * 100}%`;
+      statusEl.textContent = `${done}/${checked.length} processed · ${succeeded} saved · ${failed} failed`;
+    }
+    addBtn.disabled = false;
+    addBtn.textContent = `Done (${succeeded}/${checked.length})`;
+    loadStats();
+  }
+
+  function setOverlay(el, type, html) {
+    el.className = 'card-status-overlay show ' + type;
+    el.innerHTML = html;
+  }
+
+  // ── Database tab ───────────────────────────────────────────────────────────
+  let currentDbPlatform = '';
+  let currentDbView = 'cards';
+  let currentDbTag = '';
+  let currentDbSubTag = '';
+
+  document.querySelectorAll('#dbFilters .filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#dbFilters .filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentDbPlatform = btn.dataset.platform || '';
+      loadDbTags();
+      loadDb(currentDbPlatform, currentDbView);
+    });
+  });
+
+  document.querySelectorAll('.view-mode').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.view-mode').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentDbView = btn.dataset.view;
+      loadDb(currentDbPlatform, currentDbView);
+    });
+  });
+
+  document.getElementById('refreshDbBtn').addEventListener('click', () => {
+    loadDbTags();
+    loadDb(currentDbPlatform, currentDbView);
+    loadStats();
+  });
+
+  document.getElementById('dbTagFilter').addEventListener('change', e => {
+    currentDbTag = e.target.value || '';
+    loadDb(currentDbPlatform, currentDbView);
+  });
+  document.getElementById('dbSubTagFilter').addEventListener('change', e => {
+    currentDbSubTag = e.target.value || '';
+    loadDb(currentDbPlatform, currentDbView);
+  });
+
+  async function loadDbTags() {
+    try {
+      const qs = currentDbPlatform ? `?platform=${encodeURIComponent(currentDbPlatform)}` : '';
+      const data = await api('/api/db/tags' + qs);
+      const tagSel = document.getElementById('dbTagFilter');
+      const subSel = document.getElementById('dbSubTagFilter');
+      const tags = data.tags || [];
+      const subTags = data.sub_tags || [];
+      tagSel.innerHTML = '<option value="">Tag (stratum): all</option>' + tags.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
+      subSel.innerHTML = '<option value="">Sub-tag (query): all</option>' + subTags.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
+      if (currentDbTag) tagSel.value = currentDbTag;
+      if (currentDbSubTag) subSel.value = currentDbSubTag;
+    } catch(_) {}
+  }
+
+  document.getElementById('deleteTagBtn').addEventListener('click', async () => {
+    if (!(currentDbPlatform || currentDbTag || currentDbSubTag)) {
+      alert('Pick at least one filter (platform/tag/sub-tag) before delete.');
+      return;
+    }
+    try {
+      const previewQs = new URLSearchParams({
+        platform: currentDbPlatform || '',
+        tag: currentDbTag || '',
+        sub_tag: currentDbSubTag || '',
+      });
+      const pv = await api('/api/delete/by-tag/preview?' + previewQs.toString());
+      const msg = `Delete posts for filters?\nplatform=${currentDbPlatform || 'all'}\ntag=${currentDbTag || 'all'}\nsub-tag=${currentDbSubTag || 'all'}\n\nImpact: ${pv.posts || 0} posts, ${pv.comments || 0} comments`;
+      if (!confirm(msg)) return;
+      const r = await api('/api/delete/by-tag', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          confirm: 'yes',
+          platform: currentDbPlatform || '',
+          tag: currentDbTag || '',
+          sub_tag: currentDbSubTag || '',
+        }),
+      });
+      alert(`Deleted ${r.posts_deleted || 0} posts and ${r.comments_deleted || 0} comments`);
+      loadDbTags();
+      loadDb(currentDbPlatform, currentDbView);
+      loadStats();
+    } catch(e) {
+      alert('Delete by tag failed: ' + e.message);
+    }
+  });
+
+  document.getElementById('refreshInstagramBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('refreshInstagramBtn');
+    btn.disabled = true;
+    btn.textContent = 'Refreshing…';
+    try {
+      const sub = (document.getElementById('igExtensionSubfolder')?.value || '').trim();
+      const body = { force: false };
+      if (sub) body.subfolder = sub;
+      const r = await api('/api/instagram/refresh-extension', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      }, 5 * 60 * 1000);
+      const warn = (r.warnings || []).slice(0, 8);
+      const warnText = warn.length ? `\nWarnings:\n- ${warn.join('\n- ')}` : '';
+      alert(`Instagram refresh complete\nScan: ${r.scan_root || ''}\nStratum: ${r.stratum || ''}\nQuery tag: ${r.search_query || ''}\nFiles: ${r.files_processed}\nPosts imported: ${r.posts_imported}\nComments imported: ${r.comments_imported}${warnText}`);
+      loadDbTags();
+      loadDb(currentDbPlatform, currentDbView);
+      loadStats();
+    } catch(e) {
+      alert('Instagram refresh failed: ' + e.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '↻ Refresh Instagram Folder';
+    }
+  });
+
+  document.getElementById('backfillMetaBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('backfillMetaBtn');
+    btn.disabled = true;
+    btn.textContent = 'Backfilling…';
+    try {
+      const r = await api('/api/backfill/post-metadata', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ platforms: ['instagram', 'tiktok'] }),
+      }, 5 * 60 * 1000);
+      alert(`Metadata backfill complete\nScanned: ${r.scanned}\nUpdated: ${r.updated}`);
+      loadDb(currentDbPlatform, currentDbView);
+      loadStats();
+    } catch (e) {
+      alert('Metadata backfill failed: ' + e.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '🖼 Backfill IG/TT metadata';
+    }
+  });
+
+  async function loadDb(platform, view) {
+    const content = document.getElementById('dbContent');
+    content.innerHTML = '<div class="text-muted" style="padding:2rem;text-align:center;">Loading…</div>';
+    try {
+      const params = new URLSearchParams();
+      if (platform) params.set('platform', platform);
+      if (currentDbTag) params.set('stratum', currentDbTag);
+      if (currentDbSubTag) params.set('sub_tag', currentDbSubTag);
+      const url = '/api/posts' + (params.toString() ? `?${params.toString()}` : '');
+      const data = await api(url);
+      const posts = data.posts || [];
+      if (!posts.length) {
+        content.innerHTML = '<div class="empty-state" style="padding:3rem;text-align:center;color:var(--muted);">No posts in database yet.</div>';
+        return;
+      }
+      if (view === 'cards') {
+        renderDbCards(content, posts);
+      } else {
+        renderDbTable(content, posts);
+      }
+    } catch(e) {
+      content.innerHTML = `<p class="text-red" style="padding:1rem;">Error: ${esc(e.message)}</p>`;
+    }
+  }
+
+  function renderDbCards(container, posts) {
+    container.innerHTML = '<div class="post-list">' + posts.map(p => {
+      const strat = p.collection_stratum ? `<span class="stratum-badge">${esc(p.collection_stratum)}</span>` : '';
+      const qbadge = p.search_query ? `<span class="query-badge" title="${esc(p.search_query)}">${esc(p.search_query)}</span>` : '';
+      return `<article class="post-card" data-platform="${esc(p.platform)}" data-post-id="${esc(p.post_id)}">
+        <div class="post-card-top">
+          <div class="post-card-left">
+            <span class="badge ${esc(p.platform)}">${esc(p.platform)}</span>
+            ${strat}${qbadge}
+            <span class="post-card-meta">${esc((p.posted_at || p.scraped_at || '').slice(0,10))}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;" onclick="event.stopPropagation()">
+            <a class="ext-link" href="${esc(p.url || '#')}" target="_blank" rel="noopener">Open ↗</a>
+            <button class="delete-post-btn btn" style="font-size:0.72rem;padding:0.2rem 0.5rem;color:var(--red);border-color:var(--red);"
+              data-platform="${esc(p.platform)}" data-post-id="${esc(p.post_id)}">✕ Delete</button>
+          </div>
+        </div>
+        <div class="post-card-caption" title="${esc(p.caption || '')}">${esc(p.caption || '(no caption)')}</div>
+        <div class="post-card-metrics">
+          <span>👁 ${fmt(p.views)}</span>
+          <span>💬 ${fmt(p.comments_count)}</span>
+          <span>👍 ${fmt(p.likes)}</span>
+        </div>
+        <div class="comments-panel" style="display:none;"></div>
+      </article>`;
+    }).join('') + '</div>';
+
+    container.querySelectorAll('.post-card').forEach(card => {
+      card.addEventListener('click', () => toggleDbPost(card));
+    });
+
+    container.querySelectorAll('.delete-post-btn').forEach(btn => {
+      btn.addEventListener('click', async e => {
+        e.stopPropagation();
+        const platform = btn.dataset.platform;
+        const postId   = btn.dataset.postId;
+        if (!confirm(`Delete ${platform} / ${postId} and all its comments?`)) return;
+        btn.disabled = true;
+        btn.textContent = '…';
+        try {
+          await api('/api/delete/post', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ platform, post_id: postId }),
+          });
+          // Remove the card from the DOM immediately
+          btn.closest('.post-card').remove();
+          loadStats();
+          // Also mark as no longer in DB in the search results if visible
+          const srCard = document.querySelector(`.result-card[data-id="${postId}"]`);
+          if (srCard) srCard.classList.remove('in-db');
+        } catch(e) {
+          btn.disabled = false;
+          btn.textContent = '✕ Delete';
+          alert('Delete failed: ' + e.message);
+        }
+      });
+    });
+  }
+
+  function renderDbTable(container, posts) {
+    const cols = ['platform', 'post_id', 'caption', 'views', 'comments_count', 'collection_stratum', 'search_query', 'scraped_at'];
+    const thead = cols.map(c => `<th>${c}</th>`).join('');
+    const rows = posts.map(p =>
+      '<tr>' + cols.map(c => {
+        const v = String(p[c] ?? '');
+        const max = c === 'caption' ? 50 : 20;
+        const cls = c === 'caption' ? ' class="wide"' : '';
+        return `<td${cls}>${esc(v.length > max ? v.slice(0,max)+'…' : v)}</td>`;
+      }).join('') + '</tr>'
+    ).join('');
+    container.innerHTML = `<div class="data-table-wrap"><table class="data-table"><thead><tr>${thead}</tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+
+  async function toggleDbPost(card) {
+    const platform = card.dataset.platform;
+    const postId   = card.dataset.postId;
+    const panel    = card.querySelector('.comments-panel');
+    if (card.classList.contains('expanded')) {
+      card.classList.remove('expanded');
+      panel.style.display = 'none';
+      return;
+    }
+    document.querySelectorAll('.post-card.expanded').forEach(c => {
+      c.classList.remove('expanded');
+      c.querySelector('.comments-panel').style.display = 'none';
+    });
+    card.classList.add('expanded');
+    panel.style.display = 'block';
+    if (panel.dataset.loaded === '1') return;
+    panel.innerHTML = '<span class="text-muted">Loading…</span>';
+    try {
+      const [postData, metaData] = await Promise.all([
+        api(`/api/posts/${encodeURIComponent(platform)}/${encodeURIComponent(postId)}`),
+        platform === 'youtube'
+          ? api(`/api/metadata/youtube/${encodeURIComponent(postId)}`).catch(() => ({}))
+          : Promise.resolve({}),
+      ]);
+      panel.dataset.loaded = '1';
+
+      let html = '';
+
+      // ── Metadata + transcript block ───────────────────────────────────────
+      if (platform === 'youtube') {
+        const meta  = metaData.metadata  || null;
+        const trans = metaData.transcript || null;
+        const hasData = meta || trans;
+        html += `<div class="meta-block">`;
+        if (meta) {
+          const dur = meta.duration_seconds
+            ? `${Math.floor(meta.duration_seconds/60)}m ${meta.duration_seconds%60}s`
+            : '—';
+          const tags = (() => { try { return JSON.parse(meta.tags||'[]').slice(0,6).join(', '); } catch(_){ return ''; } })();
+          html += `
+            <div class="meta-row"><span class="meta-key">Title</span><span>${esc(meta.title||'')}</span></div>
+            <div class="meta-row"><span class="meta-key">Channel</span><span>${esc(meta.channel_title||'')}</span></div>
+            <div class="meta-row"><span class="meta-key">Duration</span><span>${dur}</span></div>
+            ${tags ? `<div class="meta-row"><span class="meta-key">Tags</span><span class="tags-list">${esc(tags)}</span></div>` : ''}
+            ${meta.description ? `<details class="desc-details"><summary>Description</summary><div class="desc-body">${esc(meta.description)}</div></details>` : ''}
+          `;
+        }
+        if (trans) {
+          html += `
+            <details class="desc-details">
+              <summary>📝 Transcript summary · ${trans.word_count ?? '?'} words · ${esc(trans.language||'')}${trans.is_generated ? ' (auto)' : ''}</summary>
+              <div class="desc-body summary-text">${esc(trans.summary||'(no summary)')}</div>
+            </details>
+          `;
+        }
+        if (!hasData) {
+          html += `<div style="display:flex;align-items:center;gap:0.5rem;">
+            <span class="text-muted" style="font-size:0.78rem;">No metadata yet</span>
+            <button class="btn" style="font-size:0.72rem;padding:0.2rem 0.5rem;" onclick="enrichOne('${esc(postId)}',this)">Fetch metadata + transcript</button>
+          </div>`;
+        }
+        html += `</div><div class="divider"></div>`;
+      }
+
+      // ── Comments ──────────────────────────────────────────────────────────
+      const comments = postData.comments || [];
+      if (!comments.length) {
+        html += '<span class="text-muted" style="font-size:0.82rem;">No comments collected yet.</span>';
+      } else {
+        html += `<div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.5rem;">${comments.length} comments</div>` +
+          comments.slice(0, 50).map(c =>
+            `<div class="comment depth-${c.depth ?? 0}">
+              <div class="comment-meta">${esc(c.author_id)} · ${esc((c.posted_at||'').slice(0,10))} · 👍${c.likes??0}</div>
+              <div class="comment-text">${esc(c.text || '')}</div>
+              ${c.gif_url ? `<div style="margin-top:0.35rem;"><img src="${esc(proxiedImgSrc(c.gif_url))}" alt="comment media" style="max-height:90px;border:1px solid var(--border);border-radius:6px;"></div>` : ''}
+            </div>`
+          ).join('') +
+          (comments.length > 50 ? `<div class="text-muted" style="padding:0.35rem 0;font-size:0.78rem;">… and ${comments.length - 50} more</div>` : '');
+      }
+      panel.innerHTML = html;
+    } catch(e) {
+      panel.innerHTML = `<span class="text-red">Error: ${esc(e.message)}</span>`;
+    }
+  }
+
+  async function enrichOne(videoId, btn) {
+    btn.disabled = true;
+    btn.textContent = 'Fetching…';
+    try {
+      const r = await api(`/api/enrich/youtube/${encodeURIComponent(videoId)}`, { method: 'POST' }, 60000);
+      btn.textContent = '✓ Done — reload card to see';
+      // Force reload on next expand
+      const card = document.querySelector(`.post-card[data-post-id="${videoId}"]`);
+      if (card) {
+        const panel = card.querySelector('.comments-panel');
+        if (panel) delete panel.dataset.loaded;
+      }
+    } catch(e) {
+      btn.disabled = false;
+      btn.textContent = 'Retry';
+      alert('Enrich failed: ' + e.message);
+    }
+  }
+
+  // ── Annotation tab (config-driven taxonomy + ToS guide) ───────────────────
+  let ANNO_LABELS = ['SAFE', 'HARASS', 'HATE', 'SEXUAL', 'SELFHARM', 'DEHUMANISE', 'MISINFO'];
+  const ANNO_SEVERITY = [1, 2, 3];
+  let ANNO_GUIDE = {};
+
+  async function loadTaxonomyConfig() {
+    try {
+      const [taxRes, tosRes] = await Promise.all([
+        fetch('/api/config/taxonomy'),
+        fetch('/api/config/tos'),
+      ]);
+      const tax = await taxRes.json();
+      const tosList = await tosRes.json();
+      if (tax.label_names && tax.label_names.length) ANNO_LABELS = tax.label_names;
+      const guides = {};
+      for (const plat of (tosList.platforms || [])) {
+        const g = await fetch('/api/config/tos/' + plat).then(r => r.json());
+        guides[plat] = g;
+      }
+      ANNO_GUIDE = guides;
+    } catch (e) {
+      console.warn('Config load failed, using defaults', e);
+    }
+  }
+  loadTaxonomyConfig();
+
+  function renderAnnoGuide(platform, activeLabel) {
+    const panel = document.getElementById('annoGuidePanel');
+    const platEl = document.getElementById('annoGuidePlatform');
+    const srcEl = document.getElementById('annoGuideSource');
+    const briefEl = document.getElementById('annoGuideBrief');
+    const fullEl = document.getElementById('annoGuideFull');
+    if (!panel || !briefEl || !fullEl) return;
+
+    const plat = (platform || '').toLowerCase();
+    const guide = ANNO_GUIDE[plat] || null;
+    panel.dataset.platform = plat || '';
+
+    if (platEl) platEl.textContent = plat ? plat : '—';
+    if (srcEl) {
+      srcEl.textContent = guide
+        ? guide.source
+        : 'Select a comment to view platform-specific policy definitions.';
+    }
+
+    if (!guide) {
+      briefEl.innerHTML = '<div class="text-muted" style="font-size:0.76rem;">No guide available for this platform.</div>';
+      fullEl.innerHTML = '';
+      return;
+    }
+
+    briefEl.innerHTML = ANNO_LABELS.map((label, i) => {
+      const row = guide.labels[label];
+      const brief = row ? row.brief : '';
+      const active = label === activeLabel ? ' active' : '';
+      return `<div class="anno-guide-row${active}" data-label="${label}"><span class="g-num">${i}</span><span class="g-label">${label}</span><span class="g-brief">${esc(brief)}</span></div>`;
+    }).join('');
+
+    const harmLabels = ANNO_LABELS.filter(l => l !== 'SAFE');
+    const policyBlocks = harmLabels.map(label => {
+      const row = guide.labels[label];
+      if (!row) return '';
+      return `<div class="anno-guide-def"><h4>${label}</h4><p>${esc(row.detail)}</p></div>`;
+    }).join('');
+
+    const euBlocks = harmLabels.map(label => {
+      const text = guide.eu && guide.eu[label];
+      if (!text) return '';
+      return `<div class="anno-guide-def eu"><h4>${label} — EU LEX 5C (DSA Annex)</h4><p>${esc(text)}</p></div>`;
+    }).join('');
+
+    fullEl.innerHTML = policyBlocks + euBlocks;
+  }
+
+  let annoCurrent = null;
+  let annoHistory = [];
+  let annoHistoryIdx = -1;
+  let annoState = { label: 'SAFE', severity: null, modality: 'text', uncertain: false, gifContext: '' };
+  let annoNav = { section: 'label', labelIdx: 0, severityIdx: 0 };
+  let annoStreak = 0;
+
+  function annoFilters() {
+    const activePlat = document.querySelector('#annoPlatformFilters .filter-btn.active');
+    return {
+      platform: activePlat ? (activePlat.dataset.platform || '') : '',
+      stratum: document.getElementById('annoStratum').value || '',
+      sub_tag: document.getElementById('annoSubTag').value || '',
+      post_id: document.getElementById('annoPostId').value.trim(),
+      has_gif_only: document.getElementById('annoGifOnly').checked ? '1' : '',
+      shuffle: document.getElementById('annoShuffle').checked ? '1' : '',
+    };
+  }
+
+  function setAnnoModeHint(msg) {
+    const el = document.getElementById('annoModeHint');
+    if (el) el.textContent = msg;
+  }
+
+  function setAnnoStreakHint() {
+    if (annoStreak > 0 && annoStreak % 10 === 0) {
+      setAnnoModeHint(`Nice pace: ${annoStreak} in a row. Keep going.`);
+    }
+  }
+
+  function refreshAnnoVisualCue() {
+    document.querySelectorAll('#annoLabelButtons .anno-chip').forEach((el, idx) => {
+      el.classList.toggle('focus', annoNav.section === 'label' && idx === annoNav.labelIdx);
+    });
+    document.querySelectorAll('#annoSeverityButtons .anno-chip').forEach((el, idx) => {
+      el.classList.toggle('focus', annoNav.section === 'severity' && idx === annoNav.severityIdx);
+    });
+  }
+
+  function renderAnnoControls() {
+    const labelWrap = document.getElementById('annoLabelButtons');
+    const sevWrap = document.getElementById('annoSeverityButtons');
+    const severityLocked = !annoState.label || annoState.label === 'SAFE';
+    labelWrap.innerHTML = ANNO_LABELS.map((l, i) =>
+      `<button class="anno-chip${annoState.label === l ? ' active' : ''}" data-idx="${i}" data-label="${l}">${i}. ${l}</button>`
+    ).join('');
+    sevWrap.innerHTML = ANNO_SEVERITY.map((n, i) =>
+      `<button class="anno-chip${annoState.severity === n ? ' active' : ''}${severityLocked ? ' warn' : ''}" data-sev="${n}" data-sev-idx="${i}" ${severityLocked ? 'disabled' : ''}>${n}</button>`
+    ).join('');
+    labelWrap.querySelectorAll('[data-label]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        pickAnnoLabel(btn.dataset.label, true);
+      });
+    });
+    sevWrap.querySelectorAll('[data-sev]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (severityLocked) return;
+        annoState.severity = Number(btn.dataset.sev);
+        annoNav.section = 'severity';
+        annoNav.severityIdx = Number(btn.dataset.sevIdx || 0);
+        renderAnnoControls();
+        setAnnoModeHint('Ready — press Enter to save');
+      });
+    });
+    refreshAnnoVisualCue();
+  }
+
+  function pickAnnoLabel(label, fromDirectSelect = false) {
+    annoState.label = label;
+    annoNav.labelIdx = ANNO_LABELS.indexOf(label);
+    if (label === 'SAFE') {
+      annoState.severity = null;
+      annoNav.section = 'label';
+      setAnnoModeHint('Ready — press Enter to save');
+    } else {
+      if (!annoState.severity) annoState.severity = 1;
+      annoNav.section = 'severity';
+      annoNav.severityIdx = 0; // keyboard cursor on "1"
+      setAnnoModeHint('Default severity 1 selected — Enter to save, arrows/1-3 to change');
+    }
+    if (fromDirectSelect && label !== 'SAFE') {
+      annoNav.section = 'severity';
+      annoNav.severityIdx = 0;
+    }
+    renderAnnoControls();
+    if (annoCurrent && annoCurrent.comment) {
+      renderAnnoGuide(annoCurrent.comment.platform, annoState.label);
+    }
+  }
+
+  function renderAnnotationPayload(d, annotation = null) {
+    annoCurrent = d;
+    annoState = {
+      label: annotation && annotation.label ? annotation.label : 'SAFE',
+      severity: annotation && annotation.severity ? Number(annotation.severity) : null,
+      modality: (annotation && annotation.modality) || d.comment.modality_default || 'text',
+      uncertain: !!(annotation && annotation.uncertain),
+      gifContext: (annotation && annotation.gif_context) || '',
+    };
+    annoNav.section = annoState.label && annoState.label !== 'SAFE' && !annoState.severity ? 'severity' : 'label';
+    annoNav.labelIdx = Math.max(0, ANNO_LABELS.indexOf(annoState.label || 'SAFE'));
+    annoNav.severityIdx = Math.max(0, ANNO_SEVERITY.indexOf(annoState.severity || 1));
+
+    document.getElementById('annoPostTitle').textContent = d.post.title || '(no title)';
+    document.getElementById('annoPostMeta').textContent =
+      `${d.post.platform} · ${d.post.post_id}${d.post.channel_title ? ' · ' + d.post.channel_title : ''}`;
+    document.getElementById('annoContext').textContent = d.post.annotation_context || '';
+    document.getElementById('annoThumbWrap').innerHTML = d.post.thumbnail_url
+      ? `<img src="${esc(proxiedImgSrc(d.post.thumbnail_url))}" alt="" style="width:100%;height:100%;object-fit:cover;">`
+      : '<div class="text-muted" style="padding:1rem;">No thumbnail</div>';
+    document.getElementById('annoCommentMeta').textContent =
+      `${d.comment.platform} / ${d.comment.post_id} / ${d.comment.comment_id} · likes ${d.comment.likes || 0}`;
+    const textEl = document.getElementById('annoCommentText');
+    textEl.textContent = d.comment.text || '(empty)';
+    textEl.classList.remove('anno-fade-in');
+    void textEl.offsetWidth;
+    textEl.classList.add('anno-fade-in');
+    document.getElementById('annoParentText').textContent = d.comment.parent_text
+      ? `↳ replying to: ${d.comment.parent_text}`
+      : '';
+    const gifWrap = document.getElementById('annoGifWrap');
+    if (d.comment.has_gif && d.comment.gif_url) {
+      gifWrap.style.display = 'block';
+      gifWrap.innerHTML = `<img src="${esc(proxiedImgSrc(d.comment.gif_url))}" alt="gif" style="max-height:120px;border-radius:6px;border:1px solid var(--border);">`;
+    } else if (d.comment.image_url) {
+      gifWrap.style.display = 'block';
+      gifWrap.innerHTML = `<img src="${esc(proxiedImgSrc(d.comment.image_url))}" alt="image" style="max-height:180px;border-radius:6px;border:1px solid var(--border);">`;
+    } else {
+      gifWrap.style.display = 'none';
+      gifWrap.innerHTML = '';
+    }
+    const mod = document.getElementById('annoModality');
+    mod.value = annoState.modality;
+    mod.disabled = true;
+    mod.style.opacity = '0.65';
+    document.getElementById('annoEditModalityBtn').textContent = 'Edit';
+    document.getElementById('annoUncertain').checked = !!annoState.uncertain;
+    const gifContextEl = document.getElementById('annoGifContext');
+    const visualMedia = !!(d.comment.has_gif || d.comment.image_url);
+    gifContextEl.value = annoState.gifContext || '';
+    gifContextEl.disabled = !visualMedia;
+    gifContextEl.style.opacity = visualMedia ? '1' : '0.6';
+    if (!visualMedia) {
+      gifContextEl.placeholder = 'No visual media for this comment';
+    } else {
+      gifContextEl.placeholder = 'Describe why this visual is harmful in context (optional)';
+    }
+    renderAnnoControls();
+    renderAnnoGuide(d.comment.platform, annoState.label);
+    if (annotation && annotation.label) {
+      setAnnoModeHint('Viewing previous annotation');
+    } else {
+      setAnnoModeHint('Default SAFE selected. Press Enter to save-next, or choose 1–6.');
+    }
+  }
+
+  function annoActivePlatformFilter() {
+    const a = document.querySelector('#annoPlatformFilters .filter-btn.active');
+    return (a && a.dataset.platform) ? a.dataset.platform : '';
+  }
+
+  async function loadAnnotationStats() {
+    const params = new URLSearchParams(annoFilters());
+    try {
+      const s = await api('/api/annotate/stats?' + params.toString());
+      const p = s.progress || { total: 0, done: 0, pct: 0 };
+      const goalDefault = Number(s.annotate_goal_per_platform) || 1500;
+      const goals = s.goal_by_platform || [];
+      document.getElementById('annoProgressBar').style.width = `${p.pct || 0}%`;
+      document.getElementById('annoProgressText').textContent =
+        `${p.done || 0} / ${p.total || 0} annotated with current filters (${p.pct || 0}% of corpus in filter)`;
+      const plat = annoActivePlatformFilter();
+      let goalLines = '';
+      if (plat) {
+        const row = goals.find(g => String(g.platform) === plat);
+        const ann = row ? row.annotated : p.done;
+        const g = goalDefault;
+        goalLines = `Goal for ${plat}: ${ann}/${g} unique comments annotated corpus-wide (${row ? Math.max(0, g - ann) : '—'} to go)`;
+      } else {
+        const parts = goals.map(g => `${g.platform}: ${g.annotated}/${goalDefault}`);
+        goalLines = 'Targets (corpus-wide, all labels): ' + (parts.join(' · ') || '—');
+      }
+      const ge = document.getElementById('annoGoalText');
+      if (ge) ge.textContent = goalLines;
+    } catch (_) {}
+  }
+
+  let annoLlmYtTimer = null;
+  let annoLlmYtJobId = '';
+
+  function stopAnnoLlmYtPoll() {
+    if (annoLlmYtTimer) clearInterval(annoLlmYtTimer);
+    annoLlmYtTimer = null;
+    annoLlmYtJobId = '';
+  }
+
+  async function pollAnnoLlmYtOnce() {
+    if (!annoLlmYtJobId) return;
+    const stEl = document.getElementById('annoLlmYtStatus');
+    try {
+      const d = await api('/api/experiments/job-status?job_id=' + encodeURIComponent(annoLlmYtJobId));
+      const st = d.status || {};
+      const msg = `${st.state || '?'} ${st.done != null && st.total != null ? st.done + '/' + st.total : ''}`;
+      if (stEl) stEl.textContent = `job ${annoLlmYtJobId}: ${msg}`;
+      if (st.state === 'done' || st.state === 'error') {
+        stopAnnoLlmYtPoll();
+        if (st.state === 'error' && stEl) stEl.textContent += (' error=' + (st.error || '?'));
+        loadAnnotationStats();
+      }
+    } catch (_) {}
+  }
+
+  function startAnnoLlmYtPoll(jobId) {
+    stopAnnoLlmYtPoll();
+    annoLlmYtJobId = jobId;
+    annoLlmYtTimer = setInterval(pollAnnoLlmYtOnce, 2000);
+    pollAnnoLlmYtOnce();
+  }
+
+  async function loadAnnotationNext() {
+    await loadAnnotationStats();
+    const params = new URLSearchParams(annoFilters());
+    try {
+      const d = await api('/api/annotate/next?' + params.toString());
+      if (d.done) {
+        annoCurrent = null;
+        document.getElementById('annoCommentText').textContent = 'No unannotated comments match current filters.';
+        document.getElementById('annoPostTitle').textContent = '';
+        document.getElementById('annoPostMeta').textContent = '';
+        document.getElementById('annoContext').textContent = '';
+        document.getElementById('annoThumbWrap').innerHTML = '';
+        renderAnnoGuide('', null);
+        setAnnoModeHint('Done for current filters');
+        return;
+      }
+      renderAnnotationPayload(d, null);
+    } catch (e) {
+      document.getElementById('annoCommentText').textContent = `Error: ${e.message}`;
+    }
+  }
+
+  async function loadAnnotationItem(item) {
+    if (!item) return;
+    try {
+      const params = new URLSearchParams({
+        platform: item.platform,
+        post_id: item.post_id,
+        comment_id: item.comment_id,
+      });
+      const d = await api('/api/annotate/item?' + params.toString());
+      renderAnnotationPayload(d, d.annotation);
+    } catch (e) {
+      setAnnoModeHint('Load previous failed: ' + e.message);
+    }
+  }
+
+  async function saveCurrentAnnotation() {
+    if (!annoCurrent || !annoCurrent.comment) return;
+    if (!annoState.label) {
+      setAnnoModeHint('Pick a label first');
+      return;
+    }
+    if (annoState.label !== 'SAFE' && !annoState.severity) {
+      setAnnoModeHint('Pick severity 1–3 for harmful labels');
+      return;
+    }
+    const body = {
+      platform: annoCurrent.comment.platform,
+      post_id: annoCurrent.comment.post_id,
+      comment_id: annoCurrent.comment.comment_id,
+      label: annoState.label,
+      severity: annoState.label === 'SAFE' ? null : annoState.severity,
+      modality: document.getElementById('annoModality').value,
+      uncertain: document.getElementById('annoUncertain').checked,
+      gif_context: document.getElementById('annoGifContext').value.trim(),
+    };
+    try {
+      await api('/api/annotate/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const active = document.querySelector('#annoLabelButtons .anno-chip.active');
+      if (active) {
+        active.classList.add('confirmed');
+        setTimeout(() => active.classList.remove('confirmed'), 140);
+      }
+      annoStreak += 1;
+      setAnnoStreakHint();
+      const pb = document.getElementById('annoProgressBar');
+      pb.classList.add('anno-fade-in');
+      setTimeout(() => pb.classList.remove('anno-fade-in'), 180);
+      annoHistory.unshift({
+        platform: body.platform,
+        post_id: body.post_id,
+        comment_id: body.comment_id,
+      });
+      if (annoHistory.length > 50) annoHistory = annoHistory.slice(0, 50);
+      annoHistoryIdx = -1;
+      await loadAnnotationNext();
+    } catch (e) {
+      setAnnoModeHint('Save failed: ' + e.message);
+    }
+  }
+
+  async function undoAnnotation() {
+    try {
+      await api('/api/annotate/undo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      annoStreak = 0;
+      await loadAnnotationNext();
+    } catch (e) {
+      setAnnoModeHint('Undo failed: ' + e.message);
+    }
+  }
+
+  async function loadAnnotationHistory() {
+    try {
+      const h = await api('/api/annotate/history?limit=25');
+      annoHistory = h.history || [];
+      annoHistoryIdx = -1;
+    } catch (_) {}
+  }
+
+  async function viewHistoryDelta(step) {
+    if (!annoHistory.length) return;
+    annoHistoryIdx = Math.max(0, Math.min(annoHistory.length - 1, annoHistoryIdx + step));
+    const item = annoHistory[annoHistoryIdx];
+    if (!item) return;
+    await loadAnnotationItem(item);
+    setAnnoModeHint(`History ${annoHistoryIdx + 1}/${annoHistory.length}`);
+  }
+
+  document.querySelectorAll('#annoPlatformFilters .filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#annoPlatformFilters .filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      loadAnnoSubTags();
+      loadAnnotationNext();
+    });
+  });
+  document.getElementById('annoStratum').addEventListener('change', loadAnnotationNext);
+  document.getElementById('annoSubTag').addEventListener('change', loadAnnotationNext);
+  document.getElementById('annoGifOnly').addEventListener('change', loadAnnotationNext);
+  document.getElementById('annoShuffle').addEventListener('change', loadAnnotationNext);
+  document.getElementById('annoRefreshBtn').addEventListener('click', async () => {
+    await loadAnnotationHistory();
+    await loadAnnotationNext();
+  });
+  document.getElementById('annoLlmYtBtn').addEventListener('click', async () => {
+    const limit = parseInt(document.getElementById('annoLlmYtLimit').value, 10) || 100;
+    const model = document.getElementById('annoLlmYtModel').value;
+    const statusEl = document.getElementById('annoLlmYtStatus');
+    try {
+      const r = await api('/api/annotate/ollama/youtube', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ limit, model }),
+      });
+      if (statusEl) statusEl.textContent = `Started ${r.job_id} …`;
+      startAnnoLlmYtPoll(r.job_id);
+    } catch (e) {
+      if (statusEl) statusEl.textContent = 'Failed: ' + e.message;
+    }
+  });
+
+  document.getElementById('annoUndoBtn').addEventListener('click', undoAnnotation);
+  document.getElementById('annoSaveBtn').addEventListener('click', saveCurrentAnnotation);
+  document.getElementById('annoPrevBtn').addEventListener('click', () => viewHistoryDelta(+1));
+  document.getElementById('annoPostId').addEventListener('keydown', e => {
+    if (e.key === 'Enter') loadAnnotationNext();
+  });
+  document.getElementById('annoUncertain').addEventListener('change', () => {
+    annoState.uncertain = document.getElementById('annoUncertain').checked;
+  });
+  document.getElementById('annoModality').addEventListener('change', () => {
+    annoState.modality = document.getElementById('annoModality').value;
+  });
+  document.getElementById('annoGifContext').addEventListener('input', () => {
+    annoState.gifContext = document.getElementById('annoGifContext').value;
+  });
+  document.getElementById('annoEditModalityBtn').addEventListener('click', e => {
+    e.preventDefault();
+    const mod = document.getElementById('annoModality');
+    if (mod.disabled) {
+      mod.disabled = false;
+      mod.style.opacity = '1';
+      e.currentTarget.textContent = 'Lock';
+    } else {
+      mod.disabled = true;
+      mod.style.opacity = '0.65';
+      e.currentTarget.textContent = 'Edit';
+    }
+  });
+
+  document.addEventListener('keydown', async e => {
+    const annoTab = document.getElementById('tab-annotate');
+    if (!annoTab || !annoTab.classList.contains('active')) return;
+    const activeTag = (document.activeElement && document.activeElement.tagName || '').toLowerCase();
+    if (activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select') {
+      if (e.key !== 'Enter') return;
+      if (document.activeElement.id === 'annoPostId') return;
+    }
+    if (/^[0-6]$/.test(e.key)) {
+      e.preventDefault();
+      pickAnnoLabel(ANNO_LABELS[Number(e.key)], true);
+      return;
+    }
+    if (/^[1-3]$/.test(e.key) && annoState.label && annoState.label !== 'SAFE') {
+      e.preventDefault();
+      annoState.severity = Number(e.key);
+      annoNav.section = 'severity';
+      annoNav.severityIdx = Number(e.key) - 1;
+      renderAnnoControls();
+      setAnnoModeHint('Ready — press Enter to save');
+      return;
+    }
+    if (e.key.toLowerCase() === 'u') {
+      e.preventDefault();
+      const cb = document.getElementById('annoUncertain');
+      cb.checked = !cb.checked;
+      annoState.uncertain = cb.checked;
+      return;
+    }
+    if (e.key === 'Backspace') {
+      e.preventDefault();
+      await undoAnnotation();
+      return;
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (annoNav.section === 'severity') annoNav.section = 'label';
+      else if (annoNav.section === 'actions') annoNav.section = (annoState.label && annoState.label !== 'SAFE') ? 'severity' : 'label';
+      refreshAnnoVisualCue();
+      return;
+    }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (annoNav.section === 'label') {
+        annoNav.section = (annoState.label && annoState.label !== 'SAFE') ? 'severity' : 'actions';
+      } else if (annoNav.section === 'severity') {
+        annoNav.section = 'actions';
+      }
+      refreshAnnoVisualCue();
+      return;
+    }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      const dir = e.key === 'ArrowRight' ? 1 : -1;
+      if (annoNav.section === 'label') {
+        annoNav.labelIdx = (annoNav.labelIdx + dir + ANNO_LABELS.length) % ANNO_LABELS.length;
+        pickAnnoLabel(ANNO_LABELS[annoNav.labelIdx], false);
+      } else if (annoNav.section === 'severity' && annoState.label && annoState.label !== 'SAFE') {
+        annoNav.severityIdx = (annoNav.severityIdx + dir + ANNO_SEVERITY.length) % ANNO_SEVERITY.length;
+        annoState.severity = ANNO_SEVERITY[annoNav.severityIdx];
+        renderAnnoControls();
+        setAnnoModeHint('Ready — press Enter to save');
+      } else if (annoNav.section === 'actions') {
+        if (dir < 0) await viewHistoryDelta(+1);
+        else await viewHistoryDelta(-1);
+      }
+      return;
+    }
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      await saveCurrentAnnotation();
+    }
+  });
+
+  // ── Clear DB modal ─────────────────────────────────────────────────────────
+  document.getElementById('clearDbBtn').addEventListener('click', () => {
+    document.getElementById('clearModal').classList.add('show');
+  });
+  document.getElementById('clearCancelBtn').addEventListener('click', () => {
+    document.getElementById('clearModal').classList.remove('show');
+  });
+  document.getElementById('clearModal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) e.currentTarget.classList.remove('show');
+  });
+  document.getElementById('clearConfirmBtn').addEventListener('click', async () => {
+    const table = document.getElementById('clearTarget').value;
+    document.getElementById('clearModal').classList.remove('show');
+    try {
+      const r = await api('/api/db/clear', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirm: 'yes', table }),
+      });
+      alert(`Cleared — ${r.posts_deleted ?? 0} posts, ${r.comments_deleted ?? 0} comments deleted.`);
+      loadDb(currentDbPlatform, currentDbView);
+      loadStats();
+    } catch(e) {
+      alert('Clear failed: ' + e.message);
+    }
+  });
+
+  // ── Import tab ─────────────────────────────────────────────────────────────
+  const IMPORT_PROFILE_HINTS = {
+    tosmod_canonical: 'Canonical CSV with ToSMod columns (fastest path).',
+    apify_tiktok_export: 'Apify TikTok JSON export fields (cid/videoId/text...).',
+    hf_sample: 'Hugging Face style CSV mapped through sample fields.',
+  };
+  function setImportSummary(msg, isError = false) {
+    const el = document.getElementById('importSummary');
+    if (!el) return;
+    el.style.color = isError ? 'var(--red)' : 'var(--muted)';
+    el.textContent = msg || '';
+  }
+
+  async function loadImportProfiles() {
+    const sel = document.getElementById('importProfile');
+    if (!sel) return;
+    try {
+      const d = await api('/api/import/profiles');
+      const profiles = d.profiles || [];
+      sel.innerHTML = profiles.map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join('');
+      if (!profiles.length) {
+        sel.innerHTML = '<option value="tosmod_canonical">tosmod_canonical</option>';
+      } else if (profiles.includes('tosmod_canonical')) {
+        sel.value = 'tosmod_canonical';
+      }
+      updateImportProfileHint();
+    } catch (_) {
+      sel.innerHTML = '<option value="tosmod_canonical">tosmod_canonical</option>';
+      updateImportProfileHint();
+    }
+  }
+
+  function updateImportProfileHint() {
+    const profile = document.getElementById('importProfile')?.value || 'tosmod_canonical';
+    const hint = document.getElementById('importProfileHint');
+    if (hint) hint.textContent = IMPORT_PROFILE_HINTS[profile] || `Profile: ${profile}`;
+  }
+
+  function importFormData(endpoint) {
+    const file = document.getElementById('importFile').files[0];
+    if (!file) throw new Error('Select a file');
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('profile', document.getElementById('importProfile').value);
+    const ack = document.getElementById('optInAck')?.checked;
+    return fetch(endpoint + (ack ? '?opt_in_ack=1' : ''), { method: 'POST', body: fd }).then(async r => {
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || r.statusText);
+      return j;
+    });
+  }
+  document.getElementById('importPreviewBtn')?.addEventListener('click', async () => {
+    try {
+      const j = await importFormData('/api/import/preview');
+      document.getElementById('importOutput').textContent = JSON.stringify(j, null, 2);
+      setImportSummary(`Preview ready for profile "${j.profile || document.getElementById('importProfile').value}".`);
+    } catch (e) { document.getElementById('importOutput').textContent = e.message; }
+  });
+  document.getElementById('importValidateBtn')?.addEventListener('click', async () => {
+    try {
+      const j = await importFormData('/api/import/validate');
+      document.getElementById('importOutput').textContent = JSON.stringify(j, null, 2);
+      setImportSummary(j.valid ? `Validation passed (${j.rows || 0} rows checked).` : `Validation found ${(j.errors || []).length} issue(s).`, !j.valid);
+    } catch (e) { document.getElementById('importOutput').textContent = e.message; }
+  });
+  document.getElementById('importRunBtn')?.addEventListener('click', async () => {
+    try {
+      const j = await importFormData('/api/import/run');
+      document.getElementById('importOutput').textContent = JSON.stringify(j, null, 2);
+      setImportSummary(`Imported rows: ${j.rows_read || 0}, comments upserted: ${j.comments_upserted || 0}.`, false);
+      loadStats();
+    } catch (e) { document.getElementById('importOutput').textContent = e.message; }
+  });
+  document.getElementById('importCsvQuickBtn')?.addEventListener('click', async () => {
+    try {
+      const j = await importFormData('/api/dataset/import-csv');
+      document.getElementById('importOutput').textContent = JSON.stringify(j, null, 2);
+      setImportSummary(`Quick import completed: ${j.comments_upserted || 0} comments, ${j.annotations_upserted || 0} annotations.`);
+      loadStats();
+    } catch (e) { document.getElementById('importOutput').textContent = e.message; }
+  });
+  async function loadConnectors() {
+    const el = document.getElementById('connectorsPanel');
+    if (!el) return;
+    try {
+      const ack = document.getElementById('optInAck')?.checked ? '1' : '0';
+      const data = await api('/api/connectors?opt_in_ack=' + ack);
+      el.innerHTML = (data.connectors || []).map(c => {
+        const tier = c.tier === 'opt_in' ? ' <em>(opt-in)</em>' : '';
+        const status = c.available ? '<span style="color:var(--green)">ready</span>' : '<span style="color:var(--yellow)">missing keys</span>';
+        return `<div style="margin-bottom:0.35rem;"><strong>${esc(c.display_name || c.id)}</strong>${tier} — ${status}${c.missing_env?.length ? ' — need: ' + esc(c.missing_env.join(', ')) : ''}</div>`;
+      }).join('') || 'No connectors configured.';
+    } catch (e) { el.textContent = 'Error: ' + e.message; }
+  }
+  document.getElementById('importProfile')?.addEventListener('change', updateImportProfileHint);
+  document.getElementById('optInAck')?.addEventListener('change', loadConnectors);
+  loadConnectors();
+
+  // ── Init ───────────────────────────────────────────────────────────────────
+  loadStats();
+  loadSettingsStatus();
+  loadDbTags();
+  loadAnnoSubTags();
+  loadAnnotationHistory();
+  loadImportProfiles();
+
+  async function loadAnnoSubTags() {
+    try {
+      const activePlat = document.querySelector('#annoPlatformFilters .filter-btn.active');
+      const platform = activePlat ? (activePlat.dataset.platform || '') : '';
+      const prior = document.getElementById('annoSubTag').value || '';
+      const qs = platform ? `?platform=${encodeURIComponent(platform)}` : '';
+      const data = await api('/api/db/tags' + qs);
+      const subTags = data.sub_tags || [];
+      const sel = document.getElementById('annoSubTag');
+      sel.innerHTML =
+        '<option value="">All sub-categories</option>' +
+        subTags.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
+      if (prior && subTags.includes(prior)) {
+        sel.value = prior;
+      }
+    } catch (_) {}
+  }
+</script>
+</body>
+</html>

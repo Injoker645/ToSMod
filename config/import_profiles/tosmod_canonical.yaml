@@ -1,0 +1,19 @@
+name: tosmod_canonical
+format: csv
+platform_default: custom
+field_map:
+  platform: platform
+  post_id: post_id
+  comment_id: comment_id
+  text: text
+  label: label
+  severity: severity
+  modality: modality
+  collection_stratum: collection_stratum
+  search_query: search_query
+  post_title: post_title
+  channel_name: channel_name
+  url: url
+  uncertain: uncertain
+  gif_context: gif_context
+  has_gif: has_gif
