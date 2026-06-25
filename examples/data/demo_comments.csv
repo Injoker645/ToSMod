@@ -1,0 +1,21 @@
+platform,post_id,comment_id,text,label,collection_stratum,search_query,post_title,channel_name,url
+youtube,demo_vid_001,c001,Great video — really helpful explanation!,SAFE,demo,synthetic_demo,How moderation works,DemoChannel,https://example.com/youtube/demo1
+youtube,demo_vid_001,c002,You are pathetic and nobody likes you.,HARASS,demo,synthetic_demo,How moderation works,DemoChannel,https://example.com/youtube/demo1
+youtube,demo_vid_002,c003,People like them should not be allowed here.,HATE,demo,synthetic_demo,Community guidelines,DemoChannel,https://example.com/youtube/demo2
+tiktok,demo_tt_001,c004,lol this is so bad 💀,SAFE,demo,synthetic_demo,Dance trend demo,CreatorA,https://example.com/tiktok/demo1
+tiktok,demo_tt_001,c005,go hurt yourself nobody wants you,SELFHARM,demo,synthetic_demo,Dance trend demo,CreatorA,https://example.com/tiktok/demo1
+tiktok,demo_tt_002,c006,nice outfit!,SAFE,demo,synthetic_demo,Style tips,CreatorB,https://example.com/tiktok/demo2
+instagram,demo_ig_001,c007,Love this reel 🔥,SAFE,demo,synthetic_demo,Sunset reel,PhotoUser,https://example.com/instagram/demo1
+instagram,demo_ig_001,c008,Send me pics ;),SEXUAL,demo,synthetic_demo,Sunset reel,PhotoUser,https://example.com/instagram/demo1
+instagram,demo_ig_002,c009,They're basically animals not people,DEHUMANISE,demo,synthetic_demo,News clip,NewsPage,https://example.com/instagram/demo2
+reddit,demo_rd_001,c010,Source? This claim seems unsupported.,SAFE,demo,synthetic_demo,Discussion thread,r_sub_demo,https://example.com/reddit/demo1
+reddit,demo_rd_001,c011,Drinking bleach cures everything trust me,MISINFO,demo,synthetic_demo,Discussion thread,r_sub_demo,https://example.com/reddit/demo1
+youtube,demo_vid_003,c012,First!,SAFE,demo,synthetic_demo,Q&A live,DemoChannel,https://example.com/youtube/demo3
+tiktok,demo_tt_003,c013,reported 🚩,SAFE,demo,synthetic_demo,Prank video,CreatorC,https://example.com/tiktok/demo3
+instagram,demo_ig_003,c014,Blocked.,SAFE,demo,synthetic_demo,Recipe reel,ChefDemo,https://example.com/instagram/demo3
+reddit,demo_rd_002,c015,Mods should ban this user,HARASS,demo,synthetic_demo,Meta thread,r_sub_demo,https://example.com/reddit/demo2
+youtube,demo_vid_004,c016,Thanks for covering this topic fairly.,SAFE,demo,synthetic_demo,Policy explainer,DemoChannel,https://example.com/youtube/demo4
+tiktok,demo_tt_004,c017,imagine being this ignorant,HARASS,demo,synthetic_demo,React video,CreatorD,https://example.com/tiktok/demo4
+instagram,demo_ig_004,c018,Beautiful shot!,SAFE,demo,synthetic_demo,Travel reel,TravelDemo,https://example.com/instagram/demo4
+reddit,demo_rd_003,c019,Can we keep comments civil please?,SAFE,demo,synthetic_demo,Community post,r_sub_demo,https://example.com/reddit/demo3
+youtube,demo_vid_005,c020,This violates nothing — just criticism.,SAFE,demo,synthetic_demo,Review video,DemoChannel,https://example.com/youtube/demo5

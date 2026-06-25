@@ -57,13 +57,16 @@ def seed_demo_db(db_path: Path | None = None) -> None:
         conn.commit()
 
     csv_path = PROJECT_ROOT / "examples" / "data" / "demo_comments.csv"
-    profile_path = cfg.config_dir / "import_profiles" / "tosmod_canonical.yaml"
-    profile = yaml.safe_load(profile_path.read_text(encoding="utf-8"))
-    result = ImportEngine(cfg).import_file(conn, csv_path, profile)
-    print(f"Seeded {db_path}")
-    print(f"  comments: {result.comments_upserted}, annotations: {result.annotations_upserted}")
-    if result.errors:
-        print("  errors:", result.errors[:5])
+    if csv_path.exists():
+        profile_path = cfg.config_dir / "import_profiles" / "tosmod_canonical.yaml"
+        profile = yaml.safe_load(profile_path.read_text(encoding="utf-8"))
+        result = ImportEngine(cfg).import_file(conn, csv_path, profile)
+        print(f"Seeded {db_path}")
+        print(f"  comments: {result.comments_upserted}, annotations: {result.annotations_upserted}")
+        if result.errors:
+            print("  errors:", result.errors[:5])
+    else:
+        print(f"Seeded {db_path} (no demo CSV found, skipping comment import)")
     conn.close()
 
 

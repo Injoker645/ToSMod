@@ -1,0 +1,26 @@
+[
+  {
+    "platform": "youtube",
+    "post_id": "demo_vid_001",
+    "title": "How moderation works",
+    "channel_name": "DemoChannel",
+    "url": "https://example.com/youtube/demo1",
+    "annotation_context": "Synthetic demo post for ToSMod annotation UI smoke tests."
+  },
+  {
+    "platform": "tiktok",
+    "post_id": "demo_tt_001",
+    "title": "Dance trend demo",
+    "channel_name": "CreatorA",
+    "url": "https://example.com/tiktok/demo1",
+    "annotation_context": "Fabricated TikTok context — no real users or content."
+  },
+  {
+    "platform": "instagram",
+    "post_id": "demo_ig_001",
+    "title": "Sunset reel",
+    "channel_name": "PhotoUser",
+    "url": "https://example.com/instagram/demo1",
+    "annotation_context": "Fabricated Instagram reel context for local testing."
+  }
+]
