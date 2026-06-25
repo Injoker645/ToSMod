@@ -13,6 +13,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install -r requirements.txt pytest pyyaml
-      - run: python scripts/seed_demo_db.py
-      - run: pytest tests/ -q
+      - name: Install package and dev dependencies
+        run: pip install -e ".[dev]"
+      - name: Seed demo database
+        run: python -m tosmod seed
+      - name: Run tests
+        run: python -m tosmod test
