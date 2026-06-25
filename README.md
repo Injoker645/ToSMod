@@ -164,7 +164,7 @@ If you use ToSMod or the thesis benchmark results in academic work, please cite:
   author  = {Islam, Moaaz Tameer},
   title   = {ToSMod: Terms-of-Service-aware annotation and moderation research workbench},
   year    = {2025},
-  url     = {https://github.com/your-org/ToSMod},
+  url     = {https://github.com/Injoker645/ToSMod},
   license = {MIT}
 }
 ```

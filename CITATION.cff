@@ -5,7 +5,7 @@ message: >-
 authors:
   - family-names: Islam
     given-names: Moaaz Tameer
-repository-code: 'https://github.com/your-org/ToSMod'
+repository-code: 'https://github.com/Injoker645/ToSMod'
 license: MIT
 keywords:
   - content-moderation
