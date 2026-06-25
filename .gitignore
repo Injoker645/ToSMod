@@ -18,9 +18,13 @@ models/**/optimizer.pt
 __pycache__/
 *.py[cod]
 *.egg-info/
+*.egg-info
 .eggs/
 venv/
 .venv/
+.pytest_cache/
+dist/
+build/
 
 # Notebooks
 .ipynb_checkpoints/

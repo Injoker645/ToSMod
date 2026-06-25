@@ -10,6 +10,7 @@ For project background and quick start, see the [top-level README](../README.md)
 
 | File | Contents |
 |---|---|
+| [MODELS.md](MODELS.md) | Model selection, thesis benchmark results, architecture breakdown |
 | [SECRETS.md](SECRETS.md) | How to set up API keys and manage your `.env` file |
 | [DATA_SOURCES.md](DATA_SOURCES.md) | Available data connectors, which keys they require, and compliance notes |
 | [IMPORT_MAPPING.md](IMPORT_MAPPING.md) | Importing CSV/JSON/JSONL files, canonical columns, built-in profiles |
